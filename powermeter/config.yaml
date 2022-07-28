@@ -1,0 +1,46 @@
+# This is a configuration file for powermeter app. 
+#
+# In this config file it is defined:
+#  I2C addresses of four RPi Expander chips 
+#  refresh rate
+#  diode correction factors
+#
+
+defaults:
+  refresh rate: 2  # [Hz]
+
+diode ports:
+  diodeport 1:
+      i2c address:
+        adc: 0x48
+        tca: 0x38
+
+  diodeport 2:
+      i2c address:
+        adc: 0x49
+        tca: 0x39
+
+  diodeport 3:
+      i2c address:
+        adc: 0x50
+        tca: 0x40
+
+  diodeport 4:
+      i2c address:
+        adc: 0x51
+        tca: 0x41
+
+diodes:
+  d0.0:
+      correction: 1
+
+  d0.83:
+      correction: 1
+
+  d0.5:
+      correction: 1
+
+  d1.3:
+      correction: 1
+
+  # the list goes on
