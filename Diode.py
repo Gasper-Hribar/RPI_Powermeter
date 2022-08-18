@@ -39,6 +39,7 @@ class Diode:
     tresh_up = 1.9
     tresh_down = 0.4
     amp_res = [1000, 3000, 10000, 30000, 100000, 300000, 1e6, 10e6]
+    units = ['W', 'mW', 'uW', 'nW', 'pW']
 
     # START
     # pin definitions
@@ -245,16 +246,13 @@ class Diode:
         # This part defines in which wavelength section photodiode is measuring the power of light.
         sections = calibration['diodes'][f'{self.name}']['sections']
         sec_keys = list(sections.keys())
-        # print(sec_keys[1])
         true_section = ''
         for i in sec_keys:
             min_index = sections[i].find('-')
             sec_min = int(sections[i][0:min_index])
             sec_max = int(sections[i][min_index+1:])
-            # print(min_index, sec_min, sec_max)
             if self.wavelength > sec_min and self.wavelength <= sec_max:
                 true_section = i
-                # print(true_section, sec_min, sec_max)
                 break
             else:
                 true_section = ''
