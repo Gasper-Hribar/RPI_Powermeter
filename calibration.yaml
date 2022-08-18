@@ -1,45 +1,52 @@
 # This is a photo diode calibration file for powermeter app. 
 #
+# Slices photodiode responsitivity curve into multiple sections for best approximation with polynomial or exponential functions.
+# Linear approximation is defined as polynomial.
+# For exponential approximation it is expected that equation is comprised of factor before e and it's exponent, which is multiplied by wavelength: eq[0] * e^(eq[1]*wavelength)
+# For polynomial approximation it is expected that equation is comprised of factors from x^0 to x^n, where x stands for wavelength: eq[0]*x^0 + eq[1]*x^1 + eq[2]*x^2 + ...
 # 
-# 
+# Sections are defined by wavelength intervals.
+# Wavelength interval must be written as 'yyyy-zzzz' for program to work properly.
+#
+# Access to sections and approximation curves is possible through the name of the photodiode (ps100-6, ps100-7, ...)
 # 
 
 diodes:
-  - name: 'ps100-7'
-      sections: {sec1: '400-500', sec2: '500-800', sec3: '800-960', sec4: '960-1100'}
+  ps100-7:
+    sections: {'sec1': '400-500', 'sec2': '500-800', 'sec3': '800-960', 'sec4': '960-1100'}
 
-      sec1:
-        type: 'exp'
-        eq: [663.93, -0.01]
+    sec1:
+      type: 'exp'
+      eq: [663.93, -0.01]
 
-      sec2:
-        type: 'poly'
-        eq: [25.287, -0.0598, 0.00004]
+    sec2:
+      type: 'poly'
+      eq: [25.287, -0.0598, 0.00004]
 
-      sec3:
-        type: 'poly'
-        eq: [2.2264, -0.0007]
+    sec3:
+      type: 'poly'
+      eq: [2.2264, -0.0007]
 
-      sec4:
-        type: 'poly'
-        eq: [-4125.6, 12.741, -0.0131, 0.000005]
+    sec4:
+      type: 'poly'
+      eq: [-4125.6, 12.741, -0.0131, 0.000005]
   
-  - name: 'ps100-6'
-      sections: {sec1: '400-600', sec2: '600-850', sec3: '850-950', sec4: '950-1100'}
+  ps100-6:
+    sections: {'sec1': '400-600', 'sec2': '600-850', 'sec3': '850-950', 'sec4': '950-1100'}
 
-      sec1:
-        type: 'poly'
-        eq: [1799.9, -13.465, 0.0379, -0.00005, 0.00000002]
+    sec1:
+      type: 'poly'
+      eq: [1799.9, -13.465, 0.0379, -0.00005, 0.00000002]
 
-      sec2:
-        type: 'poly'
-        eq: [10.447, -0.0193, 0.00001]
+    sec2:
+      type: 'poly'
+      eq: [10.447, -0.0193, 0.00001]
 
-      sec3:
-        type: 'poly'
-        eq: [1.2427, 0.0004]
+    sec3:
+      type: 'poly'
+      eq: [1.2427, 0.0004]
 
-      sec4:
-        type: 'poly'
-        eq: [-1000000, 7360.5, -14.667, 0.0146, -0.000007, 0.000000001]
+    sec4:
+      type: 'poly'
+      eq: [-1000000, 7360.5, -14.667, 0.0146, -0.000007, 0.000000001]
     

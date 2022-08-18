@@ -1147,9 +1147,9 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             value_arr = []
 
             for i in range(self.diodecount):  # updates all variables on displayed frames
-                value = f'{self.list_of_act_diodes[i].get_multiply_factor() * (round(self.list_of_act_diodes[i].get_voltage(), 5)):.3f}'[:7]
+                value = f'{self.list_of_act_diodes[i].get_multiply_factor() * (round(self.list_of_act_diodes[i].get_power(), 5)):.3f}'[:7]
                 value_arr.append(value)
-                self.unit_labels[i]['text'] = self.voltagetext
+                self.unit_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_power_unit()}'
                 self.output_labels[i]['text'] = value
                 self.wavelength_buttons[i]['text'] = self.wavelength_texts[i].get()
                 self.amp_nums[i]['text'] = f'{hex(self.list_of_act_diodes[i].get_amplification())}'
