@@ -811,7 +811,7 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             relief='flat')
 
         new_wave.title('.')
-        new_wave.geometry(f'225x210+290+140')
+        new_wave.geometry(f'225x225+290+130')
 
         wavelength = tk.Label(new_wave,
             font=outputminifont,
@@ -928,7 +928,7 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             font=settingsfont,
             justify='center',
             text='ok',
-            width=22,
+            width=18,
             height=2,
             command=lambda: confirm_value(num))
 
@@ -943,21 +943,25 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         btn_7.place(relx=0.4, rely=0.48)
         btn_8.place(relx=0.6, rely=0.48)
         btn_9.place(relx=0.8, rely=0.48)
-        btn_OK.place(relx=0, rely=0.74)
+        btn_OK.place(relx=0, rely=0.75)
 
         def confirm_value(num):
-            if num == 0:
-                self.wavelength_text0.set(f'{self.wave_value} nm')
-                self.list_of_act_diodes[0].set_wavelength(self.wave_value)
-            elif num == 1:
-                self.wavelength_text1.set(f'{self.wave_value} nm')
-                self.list_of_act_diodes[1].set_wavelength(self.wave_value)
-            elif num == 2:
-                self.wavelength_text2.set(f'{self.wave_value} nm')
-                # self.list_of_act_diodes[2].set_wavelength(self.wave_value)
-            elif num == 3:
-                self.wavelength_text3.set(f'{self.wave_value} nm')
-                # self.list_of_act_diodes[3].set_wavelength(self.wave_value)
+            if self.wave_value > 400 and self.wave_value < 1101:
+                if num == 0:
+                    self.wavelength_text0.set(f'{self.wave_value} nm')
+                    self.list_of_act_diodes[0].set_wavelength(self.wave_value)
+                elif num == 1:
+                    self.wavelength_text1.set(f'{self.wave_value} nm')
+                    self.list_of_act_diodes[1].set_wavelength(self.wave_value)
+                elif num == 2:
+                    self.wavelength_text2.set(f'{self.wave_value} nm')
+                    # self.list_of_act_diodes[2].set_wavelength(self.wave_value)
+                elif num == 3:
+                    self.wavelength_text3.set(f'{self.wave_value} nm')
+                    # self.list_of_act_diodes[3].set_wavelength(self.wave_value)
+            else:
+                messagebox.showwarning(title='Unsupported wavelength',
+                    message='Inserted wavelength is outside of measurable interval.')
 
         #     print(self.wave_value)
             self.wave_value = 0
@@ -1016,7 +1020,7 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             relief='flat')
 
         new_range.title('.')
-        new_range.geometry(f'180x155+310+163')
+        new_range.geometry(f'190x172+305+155')
 
         btn_0 = tk.Button(new_range, 
             bg=space_blue,
@@ -1104,7 +1108,7 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             font=settingsfont,
             justify='center',
             text='auto',
-            width=17,
+            width=15,
             height=2,
             command=lambda: set_auto_amp(num))
 
@@ -1247,7 +1251,7 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.diode_banners.append(self.diode_banner)
 
             self.l = tk.Label(self.diode_banner, 
-                text=f"DIODE {self.active_diodes[0]}", 
+                text=f"P{self.active_diodes[0]}: {self.list_of_act_diodes[0].get_name()}", 
                 font=titles,
                 fg=space_blue,
                 bg=light_gray, 
@@ -1352,7 +1356,7 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.diode_banners.append(self.diode_banner_1)
 
             self.l1 = tk.Label(self.diode_banner_1, 
-                text=f"DIODE {self.active_diodes[1]}", 
+                text=f"P{self.active_diodes[1]}: {self.list_of_act_diodes[1].get_name()}", 
                 font=titles, 
                 justify='center',
                 fg=space_blue,
@@ -1457,7 +1461,7 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.diode_banners.append(self.diode_banner_2)
 
             self.l2 = tk.Label(self.diode_banner_2, 
-                text=f"DIODE {self.active_diodes[0]}", 
+                text=f"P{self.active_diodes[2]}: {self.list_of_act_diodes[2].get_name()}", 
                 font=titles,
                 fg=space_blue,
                 bg=light_gray, 
@@ -1562,7 +1566,7 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.diode_banners.append(self.diode_banner_3)
 
             self.l3 = tk.Label(self.diode_banner_3, 
-                text=f"DIODE {self.active_diodes[0]}", 
+                text=f"P{self.active_diodes[3]}: {self.list_of_act_diodes[3].get_name()}", 
                 font=titles, 
                 justify='center',
                 fg=space_blue,

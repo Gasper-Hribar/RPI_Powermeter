@@ -61,7 +61,7 @@ class Diode:
     # END
 
     def __init__(self, adc_add=0x00, tca_add=0x00):
-        self.name = 'dNaN'
+        self.name = ''
         self.adc_add = adc_add
         self.io_add = tca_add
         self.amp_bit_dg408 = 0x00
@@ -162,12 +162,11 @@ class Diode:
         self.choose_source(False)
         if self.voltage_address < 2.048:
             print('True: ', self.voltage_address)
-            self.name = f'd{self.voltage_address:.2f}'
-            self.active = True            
+            self.active = True
+            self.set_name()            
             return True
         else:
             print('False: ', self.voltage_address)
-            self.name = 'dNaN'
             self.multiply_factor = 1
             self.multiply_factor_string = 'multiply'
             self.active = False
@@ -245,14 +244,17 @@ class Diode:
         file.close()
         # This part defines in which wavelength section photodiode is measuring the power of light.
         sections = calibration['diodes'][f'{self.name}']['sections']
-        sec_keys = sections.keys()
+        sec_keys = list(sections.keys())
+        # print(sec_keys[1])
         true_section = ''
         for i in sec_keys:
             min_index = sections[i].find('-')
             sec_min = int(sections[i][0:min_index])
-            sec_max = int(sections[i][min_index+1:-1])
+            sec_max = int(sections[i][min_index+1:])
+            # print(min_index, sec_min, sec_max)
             if self.wavelength > sec_min and self.wavelength <= sec_max:
                 true_section = i
+                # print(true_section, sec_min, sec_max)
                 break
             else:
                 true_section = ''
