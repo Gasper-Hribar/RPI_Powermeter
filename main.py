@@ -42,7 +42,7 @@ white_ish = '#e1e5ee'
 
 # START
 # main GUI functionality
-class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
+class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
     """
     Powermeter app GUI for Raspberry Pi. 
     """
@@ -1135,12 +1135,12 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
         self.diodecount = len(self.list_of_act_diodes)
         self.list_of_act_diodes[0].choose_source(self.source)
+        # while True:
+        #     self.check_diodes()
 
         if self.source:
-            # self.voltagetext = 'Voltage [V]'
             self.reading_pow = False
         else:
-            self.voltagetext = 'Power [n/uW]'
             self.reading_pow = True
             for i in self.list_of_act_diodes:
                 i.read_data_adc()  # reads voltages on active photodiodes
@@ -1201,8 +1201,9 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         
         Adds labels and text widgets to frames.
         """
-        self.diodecount = len(self.list_of_act_diodes)
+
         self.source = False
+        self.diodecount = len(self.list_of_act_diodes)
 
         if self.source:
             self.voltagetext = 'Voltage [V]'
@@ -1680,9 +1681,7 @@ class powemeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.configure(bg=space_blue)
         self.config(cursor="none")
 
-        # self.list_of_act_diodes[0].choose_source(self.source)
-        self.d0.choose_source(self.source)  # set adc_sel_pin to the right value
-
+        self.d0.choose_source(self.source)
         self.create_widgets()  # creates frames with all widgets in them
 
         self.T = updateTimer(self.delay_time, self.update_widgets)  # calls a timer to update values on the GUI
@@ -1725,6 +1724,6 @@ class updateTimer():
 ###### START OF THE APPLICATION
 
 if __name__ == '__main__':
-    app = powemeter_app()
+    app = powermeter_app()
     app.mainloop()
 # END

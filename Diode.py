@@ -150,6 +150,7 @@ class Diode:
 
     def choose_source(self, source):
         """Writes appropriate value to the adc_sel (GPIO17) pin in order to choose between diode selection or."""
+        # source = True
         if source:
             Diode.rpi.write(Diode.adc_sel_pin, True)
             self.read_power = False
@@ -160,12 +161,16 @@ class Diode:
 
     def is_active(self):
         """Checks if a photodiode is connected. Updates name."""        
+        
         self.read_voltage_add()
         self.choose_source(False)
         if self.voltage_address < 2.048:
             print('True: ', self.voltage_address)
             self.active = True
-            self.set_name()            
+            try:
+                self.set_name()
+            except:
+                pass 
             return True
         else:
             print('False: ', self.voltage_address)
@@ -235,6 +240,7 @@ class Diode:
 
         (c, data) = Diode.rpi.i2c_read_device(self.h, 2)        
         self.voltage_address = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))
+        # print('reading voltage', self.voltage_address, (int.from_bytes(data, 'big', signed=True)))
 
         return 
 
@@ -265,6 +271,7 @@ class Diode:
         while True:
             (c, data) = Diode.rpi.i2c_read_device(self.h, 2)        
             self.power_read = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))
+            # print('reading power')
             if self.power_read > Diode.tresh_up:
                 ex = self.change_amp(False)
                 self.underexposed = False
@@ -287,22 +294,25 @@ class Diode:
                 if self.wavelength in Diode.specific_wavelengths:
                     self.power_read = calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'] * self.power_read
 
-                self.power_read = self.get_multiply_factor * self.power_read
+                self.power_read = self.multiply_factor * self.power_read
 
-                ratio_pow = 1 / self.power_read
-                if ratio_pow > 1:
-                    if ratio_pow <= 1000:
-                        self.power_read = 1000 * self.power_read
-                        self.power_unit = 'mW'
-                    elif ratio_pow <= 1e6:
-                        self.power_read = 1e6 * self.power_read
-                        self.power_unit = 'uW'
-                    elif ratio_pow <= 1e9:
-                        self.power_read = 1e9 * self.power_read
-                        self.power_unit = 'nW'
-                    elif ratio_pow <= 1e12:
-                        self.power_read = 1e12 * self.power_read
-                        self.power_unit = 'pW'
+                if self.multiply_factor > 0:
+                    ratio_pow = 1 / self.power_read
+                    self.power_unit = 'W'
+
+                    if ratio_pow > 1:
+                        if ratio_pow <= 1000:
+                            self.power_read = 1000 * self.power_read
+                            self.power_unit = 'mW'
+                        elif ratio_pow <= 1e6:
+                            self.power_read = 1e6 * self.power_read
+                            self.power_unit = 'uW'
+                        elif ratio_pow <= 1e9:
+                            self.power_read = 1e9 * self.power_read
+                            self.power_unit = 'nW'
+                        elif ratio_pow <= 1e12:
+                            self.power_read = 1e12 * self.power_read
+                            self.power_unit = 'pW'
                 self.readcount = 0
                 self.underexposed = False
                 self.overexposed = False
