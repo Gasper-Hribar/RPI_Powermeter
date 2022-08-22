@@ -40,6 +40,7 @@ class Diode:
     tresh_down = 0.4
     amp_res = [1000, 3000, 10000, 30000, 100000, 300000, 1e6, 10e6]
     units = ['W', 'mW', 'uW', 'nW', 'pW']
+    specific_wavelengths = [532, 950, 1030, 1050]
 
     # START
     # pin definitions
@@ -191,7 +192,7 @@ class Diode:
     def change_amp(self, fact):
         """Writes to I/O Expander in order to change voltage amplification in circuit.
         
-        Takes: fact (bool): if True = amplify, if False = deamplify."""    
+        Takes: fact (bool): if True = amplify, if False = 'deamplify'."""    
         if self.auto_range:
             if fact:        
                 if self.amp_bit_dg408 < 0x07:
@@ -276,25 +277,30 @@ class Diode:
                 volt = self.power_read
                 current = volt / Diode.amp_res[self.amp_bit_dg408]
                 if calibration['diodes'][f'{self.name}'][true_section]['type'] == 'exp':
-                    self.power_read = current * (calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength))
+                    self.power_read = (current * (calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength)))
                 if calibration['diodes'][f'{self.name}'][true_section]['type'] == 'poly':
                     poly_power = len(calibration['diodes'][f'{self.name}'][true_section]['eq'])
                     self.power_read = 0
                     for i in range(poly_power):
-                        self.power_read = current * (calibration['diodes'][f'{self.name}'][true_section]['eq'][i] * self.wavelength**i)
+                        self.power_read += (current * (calibration['diodes'][f'{self.name}'][true_section]['eq'][i] * (self.wavelength**i)))
                 
+                if self.wavelength in Diode.specific_wavelengths:
+                    self.power_read = calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'] * self.power_read
+
+                self.power_read = self.get_multiply_factor * self.power_read
+
                 ratio_pow = 1 / self.power_read
                 if ratio_pow > 1:
-                    if ratio_pow < 1000:
+                    if ratio_pow <= 1000:
                         self.power_read = 1000 * self.power_read
                         self.power_unit = 'mW'
-                    elif ratio_pow < 1e6:
+                    elif ratio_pow <= 1e6:
                         self.power_read = 1e6 * self.power_read
                         self.power_unit = 'uW'
-                    elif ratio_pow < 1e9:
+                    elif ratio_pow <= 1e9:
                         self.power_read = 1e9 * self.power_read
                         self.power_unit = 'nW'
-                    elif ratio_pow < 1e12:
+                    elif ratio_pow <= 1e12:
                         self.power_read = 1e12 * self.power_read
                         self.power_unit = 'pW'
                 self.readcount = 0

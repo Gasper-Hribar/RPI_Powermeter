@@ -14,6 +14,7 @@
 diodes:
   ps100-7:
     sections: {'sec1': '400-500', 'sec2': '500-800', 'sec3': '800-960', 'sec4': '960-1100'}
+    specific corrections: {'532': 1, '950': 1, '1030': 1, '1050': 1}
 
     sec1:
       type: 'exp'
@@ -33,6 +34,7 @@ diodes:
   
   ps100-6:
     sections: {'sec1': '400-600', 'sec2': '600-850', 'sec3': '850-950', 'sec4': '950-1100'}
+    specific corrections: {'532': 1, '950': 1, '1030': 1, '1050': 1}
 
     sec1:
       type: 'poly'
