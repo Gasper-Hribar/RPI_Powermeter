@@ -22,7 +22,7 @@ class Diode:
         - activity boolean, based on dis/connected photodiode (active)
         - wavelength parameter (wavelength)
         - multiplication factor (multiply_factor)
-        - multiplication factor string (multiply_factor_string) [used because value is float and string is 'multiply'/'NDx']
+        - multiplication factor string (multiply_factor_string) [used because value is float and string is 'multiply'/'NDx'/float]
 
     Constructor takes: ADC address, I/O Expander address.
 
@@ -40,7 +40,12 @@ class Diode:
     tresh_down = 0.4
     amp_res = [1000, 3000, 10000, 30000, 100000, 300000, 1e6, 10e6]
     units = ['W', 'mW', 'uW', 'nW', 'pW']
-    specific_wavelengths = [532, 950, 1030, 1050]
+
+    file = open('calibration.yaml')
+    caldata = yaml.load(file, Loader=yaml.FullLoader)
+    file.close()
+
+    specific_wavelengths = caldata['calibrated wavelengths']
 
     # START
     # pin definitions

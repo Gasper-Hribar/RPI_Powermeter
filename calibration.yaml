@@ -11,7 +11,10 @@
 # Access to sections and approximation curves is possible through the name of the photodiode (ps100-6, ps100-7, ...)
 # 
 
+calibrated wavelengths: [532, 950, 1030, 1050]
+
 diodes:
+
   ps100-7:
     sections: {'sec1': '400-500', 'sec2': '500-800', 'sec3': '800-960', 'sec4': '960-1100'}
     specific corrections: {'532': 1, '950': 1, '1030': 1, '1050': 1}
