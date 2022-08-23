@@ -740,17 +740,17 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.file_log.close()
             setts_page.destroy()
 
-        def choose_volt():
-            self.source = True
-            self.chosen_source = True
-            self.reading_pow = False
-            setts_page.destroy()
+        # def choose_volt():
+        #     self.source = True
+        #     self.chosen_source = True
+        #     self.reading_pow = False
+        #     setts_page.destroy()
 
-        def choose_pow():
-            self.source = False
-            self.chosen_source = False
-            self.reading_pow = True
-            setts_page.destroy()
+        # def choose_pow():
+        #     self.source = False
+        #     self.chosen_source = False
+        #     self.reading_pow = True
+        #     setts_page.destroy()
 
         def enable_auto():
             self.autodetect = True
