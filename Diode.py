@@ -241,7 +241,7 @@ class Diode:
         """Reads voltage address on a photodiode."""
         self.choose_source(True)
         Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_OUT_REG, 0x00)
-        time.sleep(0.1)
+        time.sleep(0.02)
 
         (c, data) = Diode.rpi.i2c_read_device(self.h, 2)        
         self.voltage_address = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))
@@ -271,7 +271,7 @@ class Diode:
 
         self.choose_source(False)
         Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
-        time.sleep(0.1)
+        time.sleep(0.02)
 
         while True:
             (c, data) = Diode.rpi.i2c_read_device(self.h, 2)        
