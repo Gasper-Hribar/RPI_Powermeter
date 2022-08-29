@@ -288,6 +288,7 @@ class Diode:
                 # and multiply it by current -> get W.
                 volt = self.power_read
                 current = volt / Diode.amp_res[self.amp_bit_dg408]
+                print('current: ', current)
                 if calibration['diodes'][f'{self.name}'][true_section]['type'] == 'exp':
                     self.power_read = (current * (calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength)))
                 if calibration['diodes'][f'{self.name}'][true_section]['type'] == 'poly':
