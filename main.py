@@ -245,6 +245,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.amp_level1.set('amp level auto')
         self.amp_level2.set('amp level auto')
         self.amp_level3.set('amp level auto')
+        self.amp_levels = [self.amp_level0, self.amp_level1, self.amp_level2, self.amp_level3]
 
         # definition of wavelengths as text on display
         self.wavelength_text0 = tk.StringVar(self)
@@ -946,19 +947,21 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         btn_OK.place(relx=0, rely=0.75)
 
         def confirm_value(num):
-            if self.wave_value > 400 and self.wave_value < 1101:
-                if num == 0:
-                    self.wavelength_text0.set(f'{self.wave_value} nm')
-                    self.list_of_act_diodes[0].set_wavelength(self.wave_value)
-                elif num == 1:
-                    self.wavelength_text1.set(f'{self.wave_value} nm')
-                    self.list_of_act_diodes[1].set_wavelength(self.wave_value)
-                elif num == 2:
-                    self.wavelength_text2.set(f'{self.wave_value} nm')
-                    # self.list_of_act_diodes[2].set_wavelength(self.wave_value)
-                elif num == 3:
-                    self.wavelength_text3.set(f'{self.wave_value} nm')
-                    # self.list_of_act_diodes[3].set_wavelength(self.wave_value)
+            if self.wave_value > 400 and self.wave_value <= 1100:
+                self.wavelength_texts[num].set(f'{self.wave_value} nm')
+                self.list_of_act_diodes[num].set_wavelength(self.wave_value)
+                # if num == 0:
+                #     self.wavelength_text0.set(f'{self.wave_value} nm')
+                #     self.list_of_act_diodes[0].set_wavelength(self.wave_value)
+                # elif num == 1:
+                #     self.wavelength_text1.set(f'{self.wave_value} nm')
+                #     self.list_of_act_diodes[1].set_wavelength(self.wave_value)
+                # elif num == 2:
+                #     self.wavelength_text2.set(f'{self.wave_value} nm')
+                #     self.list_of_act_diodes[2].set_wavelength(self.wave_value)
+                # elif num == 3:
+                #     self.wavelength_text3.set(f'{self.wave_value} nm')
+                #     self.list_of_act_diodes[3].set_wavelength(self.wave_value)
             else:
                 messagebox.showwarning(title='Unsupported wavelength',
                     message='Inserted wavelength is outside of measurable interval.')
@@ -978,42 +981,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
     def set_range_to(self, num):
         """Displays a new Toplevel window in which user manually sets a new range for Diode"""
-        
-        def man_change_range(rang, num):
-            if not self.autodetect:
-                if num == 0:
-                    self.d0.set_amplification(rang)
-                    self.amp_level0.set(f'amp level {rang}')
-                elif num == 1:
-                    self.d1.set_amplification(rang)
-                    self.amp_level1.set(f'amp level {rang}')
-                elif num == 2:
-                    self.d2.set_amplification(rang)
-                    self.amp_level2.set(f'amp level {rang}')
-                elif num == 3:
-                    self.d3.set_amplification(rang)
-                    self.amp_level3.set(f'amp level {rang}')
-                new_range.destroy()
-
-            else:
-                messagebox.showwarning(title='Auto-detection enabled', 
-                    message='Auto-detection of photodiodes is enabled. In order to choose your own amplification range, disable it in the settings.')
-
-        def set_auto_amp(num):
-            if num == 0:
-                self.d0.toggle_true_auto_range()
-                self.amp_level0.set('amp level auto')
-            elif num==1:
-                self.d1.toggle_true_auto_range()
-                self.amp_level1.set('amp level auto')
-            elif num==2:
-                self.d2.toggle_true_auto_range()
-                self.amp_level2.set('amp level auto')
-            elif num==3:
-                self.d3.toggle_true_auto_range()
-                self.amp_level3.set('amp level auto')
-
-            new_range.destroy()
 
         new_range = tk.Toplevel(
             bg=white_ish,
@@ -1121,6 +1088,47 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         btn_6.place(relx=0.5, rely=0.35)
         btn_7.place(relx=0.75, rely=0.35)
         btn_auto.place(relx=0, rely=0.68)
+        
+        def man_change_range(rang, num):
+            if not self.autodetect:
+                self.list_of_act_diodes[num].set_amplification(rang)
+                self.amp_levels[num].set(f'amp level {rang}')
+                # if num == 0:
+                #     self.list_of_act_diodes[num].set_amplification(rang)
+                #     self.amp_levels[num].set(f'amp level {rang}')
+                # elif num == 1:
+                #     self.d1.set_amplification(rang)
+                #     self.amp_level1.set(f'amp level {rang}')
+                # elif num == 2:
+                #     self.d2.set_amplification(rang)
+                #     self.amp_level2.set(f'amp level {rang}')
+                # elif num == 3:
+                #     self.d3.set_amplification(rang)
+                #     self.amp_level3.set(f'amp level {rang}')
+                # self.amp_levels = [self.amp_level0, self.amp_level1, self.amp_level2, self.amp_level3]
+                new_range.destroy()
+
+            else:
+                messagebox.showwarning(title='Auto-detection enabled', 
+                    message='Auto-detection of photodiodes is enabled. In order to choose your own amplification range, disable it in the settings.')
+
+        def set_auto_amp(num):
+            self.list_of_act_diodes[num].toggle_true_auto_range()
+            self.amp_levels[num].set('amp level auto')
+            # if num == 0:
+            #     self.d0.toggle_true_auto_range()
+            #     self.amp_level0.set('amp level auto')
+            # elif num==1:
+            #     self.d1.toggle_true_auto_range()
+            #     self.amp_level1.set('amp level auto')
+            # elif num==2:
+            #     self.d2.toggle_true_auto_range()
+            #     self.amp_level2.set('amp level auto')
+            # elif num==3:
+            #     self.d3.toggle_true_auto_range()
+            #     self.amp_level3.set('amp level auto')
+
+            new_range.destroy()
 
 ###### 
 ######
