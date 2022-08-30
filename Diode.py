@@ -123,7 +123,7 @@ class Diode:
         self.multiply_factor_string = s
 
     def set_name(self):
-        file = open('config.yaml')
+        file = open('config.yaml', 'r')
         data = yaml.load(file, Loader=yaml.FullLoader)
         file.close()
         if self.active:
@@ -252,7 +252,7 @@ class Diode:
     def read_data_adc(self):
         """Reads data through I2C protocol from A/D Converter with address given to the constructor."""
 
-        file = open('calibration.yaml')
+        file = open('calibration.yaml', 'r')
         calibration = yaml.load(file, Loader=yaml.FullLoader)
         file.close()
         # This part defines in which wavelength section photodiode is measuring the power of light.

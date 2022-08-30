@@ -22,13 +22,13 @@ diode ports:
 
   diodeport 3:
       i2c address:
-        adc: 0x50
-        tca: 0x40
+        adc: 74
+        tca: 58
 
   diodeport 4:
       i2c address:
-        adc: 0x51
-        tca: 0x41
+        adc: 75
+        tca: 59
 
 diodes:
   d0.0:

@@ -114,12 +114,12 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         if self.d1.is_active():
                 self.active_diodes.append(1)
                 self.list_of_act_diodes.append(self.d1)
-        # if self.d2.is_active():
-        #       self.active_diodes.append(2)
-        #       self.list_of_act_diodes.append(self.d2)
-        # if self.d3.is_active():
-        #       self.active_diodes.append(3)
-        #       self.list_of_act_diodes.append(self.d3)
+        if self.d2.is_active():
+              self.active_diodes.append(2)
+              self.list_of_act_diodes.append(self.d2)
+        if self.d3.is_active():
+              self.active_diodes.append(3)
+              self.list_of_act_diodes.append(self.d3)
         self.diodecount = len(self.active_diodes)
         return
 
@@ -151,7 +151,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
     def set_default_values(self):
         
-        with open('/home/pi/Work/GH/config.yaml', 'r') as file:
+        with open('config.yaml', 'r') as file:
             self.data = yaml.load(file, Loader=yaml.FullLoader)
 
         self.delay_time = 1 / self.data['defaults']['refresh rate']  # sets refresha rate on update timer
@@ -176,10 +176,16 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.d3 = Diode(self.adc3, self.tca3)
         self.all_diodes = [self.d0, self.d1, self.d2, self.d3]
 
+        print(hex(self.d0.get_adc_address()), hex(self.d0.get_io_address()))
+        print(hex(self.d1.get_adc_address()), hex(self.d1.get_io_address()))
+
+        print(self.d3.get_adc_address(), self.d3.get_io_address())
+        print(self.data['diode ports']['diodeport 4']['i2c address']['adc'], self.data['diode ports']['diodeport 4']['i2c address']['tca'])
+
         self.d0.set_i2c()
         self.d1.set_i2c()
-        # self.d2.set_i2c()
-        # self.d3.set_i2c()
+        self.d2.set_i2c()
+        self.d3.set_i2c()
 
         # getting active diodes - defines number of frames on display
         # self.active_diodes = [0, 1, 2, 3]
@@ -1142,7 +1148,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.refresh()
 
         self.diodecount = len(self.list_of_act_diodes)
-        self.list_of_act_diodes[0].choose_source(self.source)
+        # self.list_of_act_diodes[0].choose_source(self.source)
         # while True:
         #     self.check_diodes()
 
