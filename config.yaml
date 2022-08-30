@@ -39,7 +39,7 @@ diodes:
     name: 'ps100-7'
     correction: 1
 
-  d0.4:
+  d0.5:
     name: 'ps100-6b'
     correction: 1
 
