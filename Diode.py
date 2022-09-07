@@ -38,7 +38,7 @@ class Diode:
     int_ref_adc = 2.048
     tresh_up = 1.9
     tresh_down = 0.4
-    amp_res = [1000, 3000, 10000, 30000, 100000, 300000, 1e6, 10e6]
+    amp_res = [1000, 3000, 10000, 30000, 100000, 300000, 1000000, 3000000]
     units = ['W', 'mW', 'uW', 'nW', 'pW']
 
     file = open('calibration.yaml')
@@ -288,7 +288,7 @@ class Diode:
                 # and multiply it by current -> get W.
                 volt = self.power_read
                 current = volt / Diode.amp_res[self.amp_bit_dg408]
-                print('current: ', current)
+                # print('current: ', current)
                 if calibration['diodes'][f'{self.name}'][true_section]['type'] == 'exp':
                     self.power_read = (current * (calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength)))
                 if calibration['diodes'][f'{self.name}'][true_section]['type'] == 'poly':
@@ -298,7 +298,7 @@ class Diode:
                         self.power_read += (current * (calibration['diodes'][f'{self.name}'][true_section]['eq'][i] * (self.wavelength**i)))
                 
                 if self.wavelength in Diode.specific_wavelengths:
-                    self.power_read = calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'] * self.power_read
+                    self.power_read = calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'][f'{int(self.amp_bit_dg408)}'] * self.power_read
 
                 self.power_read = self.multiply_factor * self.power_read
 

@@ -1099,19 +1099,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             if not self.autodetect:
                 self.list_of_act_diodes[num].set_amplification(rang)
                 self.amp_levels[num].set(f'amp level {rang}')
-                # if num == 0:
-                #     self.list_of_act_diodes[num].set_amplification(rang)
-                #     self.amp_levels[num].set(f'amp level {rang}')
-                # elif num == 1:
-                #     self.d1.set_amplification(rang)
-                #     self.amp_level1.set(f'amp level {rang}')
-                # elif num == 2:
-                #     self.d2.set_amplification(rang)
-                #     self.amp_level2.set(f'amp level {rang}')
-                # elif num == 3:
-                #     self.d3.set_amplification(rang)
-                #     self.amp_level3.set(f'amp level {rang}')
-                # self.amp_levels = [self.amp_level0, self.amp_level1, self.amp_level2, self.amp_level3]
                 new_range.destroy()
 
             else:
@@ -1121,19 +1108,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         def set_auto_amp(num):
             self.list_of_act_diodes[num].toggle_true_auto_range()
             self.amp_levels[num].set('amp level auto')
-            # if num == 0:
-            #     self.d0.toggle_true_auto_range()
-            #     self.amp_level0.set('amp level auto')
-            # elif num==1:
-            #     self.d1.toggle_true_auto_range()
-            #     self.amp_level1.set('amp level auto')
-            # elif num==2:
-            #     self.d2.toggle_true_auto_range()
-            #     self.amp_level2.set('amp level auto')
-            # elif num==3:
-            #     self.d3.toggle_true_auto_range()
-            #     self.amp_level3.set('amp level auto')
-
             new_range.destroy()
 
 ###### 
@@ -1148,9 +1122,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.refresh()
 
         self.diodecount = len(self.list_of_act_diodes)
-        # self.list_of_act_diodes[0].choose_source(self.source)
-        # while True:
-        #     self.check_diodes()
 
         if self.source:
             self.reading_pow = False
@@ -1205,6 +1176,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 self.reset_values()
             
         return
+
 ###### 
 ######
 ######
@@ -1334,7 +1306,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 relief='flat',
                 border=0,
                 text=self.amp_level0.get(),
-                command=lambda: self.set_range_to(self.active_diodes[0]))
+                command=lambda: self.set_range_to(0))
             self.amp_buttons.append(self.ampl)
 
             self.factor_button = tk.Button(self.diode_banner, 
@@ -1439,7 +1411,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 relief='flat',
                 border=0,
                 text=self.amp_level1.get(),
-                command=lambda: self.set_range_to(self.active_diodes[1]))
+                command=lambda: self.set_range_to(1))
             self.amp_buttons.append(self.ampl1)
 
             self.factor_button1 = tk.Button(self.diode_banner_1, 
@@ -1544,7 +1516,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 relief='flat',
                 border=0,
                 text=self.amp_level2.get(),
-                command=lambda: self.set_range_to(self.active_diodes[0]))
+                command=lambda: self.set_range_to(2))
             self.amp_buttons.append(self.ampl2)
             
             self.factor_button2 = tk.Button(self.diode_banner_2, 
@@ -1649,7 +1621,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 relief='flat',
                 border=0,
                 text=self.amp_level3.get(),
-                command=lambda: self.set_range_to(self.active_diodes[0]))
+                command=lambda: self.set_range_to(3))
             self.amp_buttons.append(self.ampl3)
 
             self.factor_button3 = tk.Button(self.diode_banner_3, 
