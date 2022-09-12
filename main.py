@@ -59,8 +59,11 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         """Calls a function that checks which photodiodes are connected. Calls a function to reorganize the display if neccessary."""
         prev_diodes = self.diodecount
         self.check_diodes()
+        print("checked diodes")
         if not prev_diodes == self.diodecount:
-            self.rewrite_frames()            
+            print("rewriting frames")
+            self.rewrite_frames()
+            print("rewriting frames: success")            
         self.source = self.chosen_source
         return
 
@@ -87,7 +90,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.file_log.write(string_tw)
             self.file_log.close()
         except:
-            print('Error')
+            print('Error when writing to a file.')
         return
 
     def reset_values(self):
@@ -121,6 +124,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
               self.active_diodes.append(3)
               self.list_of_act_diodes.append(self.d3)
         self.diodecount = len(self.active_diodes)
+        print("diode count:", self.diodecount)
         return
 
 ######
@@ -130,19 +134,28 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
     def all_children (self) :
         _list = self.winfo_children()
-        print(_list)
+        print("list of items: ", _list)
+        try:
+            for item in _list :
+                if item.winfo_children() :
+                    print("in children")
+                    _list.extend(item.winfo_children())
+                    print("list extended")
 
-        for item in _list :
-            if item.winfo_children() :
-                _list.extend(item.winfo_children())
-
-        return _list
+            return _list
+        except:
+            print("Unable to define children.")
 
     def rewrite_frames(self):
-        widget_list = self.all_children()
-        for item in widget_list:
-            item.destroy()
-        self.create_widgets()
+        try:
+            widget_list = self.all_children()
+            print("got list")
+            for item in widget_list:
+                item.destroy()
+            print("destroyed children")
+            self.create_widgets()
+        except:
+            print("Unable to rewrite frames.")
 
 ######
 ######
@@ -175,22 +188,11 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.d2 = Diode(self.adc2, self.tca2)
         self.d3 = Diode(self.adc3, self.tca3)
         self.all_diodes = [self.d0, self.d1, self.d2, self.d3]
-
-        print(hex(self.d0.get_adc_address()), hex(self.d0.get_io_address()))
-        print(hex(self.d1.get_adc_address()), hex(self.d1.get_io_address()))
-
-        print(self.d3.get_adc_address(), self.d3.get_io_address())
-        print(self.data['diode ports']['diodeport 4']['i2c address']['adc'], self.data['diode ports']['diodeport 4']['i2c address']['tca'])
-
+        
         self.d0.set_i2c()
         self.d1.set_i2c()
         self.d2.set_i2c()
         self.d3.set_i2c()
-
-        # getting active diodes - defines number of frames on display
-        # self.active_diodes = [0, 1, 2, 3]
-        # self.list_of_act_diodes = [self.d0, self.d1]
-        # self.diodecount = len(self.active_diodes)
 
         self.check_diodes()
 
@@ -1130,50 +1132,55 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             for i in self.list_of_act_diodes:
                 i.read_data_adc()  # reads voltages on active photodiodes
 
-        if self.reading_pow:
+        if not self.diodecount == 0:
+            print("updating widgets")
 
-            string_tw = ''
-            value_arr = []
+            if self.reading_pow:
 
-            for i in range(self.diodecount):  # updates all variables on displayed frames
-                value = f'{(round(self.list_of_act_diodes[i].get_power(), 5)):.3f}'[:7]
-                value_arr.append(value)
-                self.unit_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_power_unit()}'
-                self.output_labels[i]['text'] = value
-                self.wavelength_buttons[i]['text'] = self.wavelength_texts[i].get()
-                self.amp_nums[i]['text'] = f'{hex(self.list_of_act_diodes[i].get_amplification())}'
-                self.amp_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_exposure()}'
-                self.amp_buttons[i]['text'] = self.amp_levels[i].get()               
-                self.factor_buttons[i]['text'] = self.list_of_act_diodes[i].get_multiply_factor_string()
+                string_tw = ''
+                value_arr = []
 
-            if self.log_sys:
+                for i in range(self.diodecount):  # updates all variables on displayed frames
+                    value = f'{(round(self.list_of_act_diodes[i].get_power(), 5)):.3f}'[:7]
+                    value_arr.append(value)
+                    self.unit_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_power_unit()}'
+                    self.output_labels[i]['text'] = value
+                    self.wavelength_buttons[i]['text'] = self.wavelength_texts[i].get()
+                    self.amp_nums[i]['text'] = f'{hex(self.list_of_act_diodes[i].get_amplification())}'
+                    self.amp_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_exposure()}'
+                    self.amp_buttons[i]['text'] = self.amp_levels[i].get()               
+                    self.factor_buttons[i]['text'] = self.list_of_act_diodes[i].get_multiply_factor_string()
 
-                for i in range(self.diodecount):  # saves read values to specified variables in order to keep the right diode orde of values
-                    if self.list_of_act_diodes[i].get_adc_address() == self.adc0:
-                        self.diode0_log = value_arr[i] + ','
-                    if self.list_of_act_diodes[i].get_adc_address() == self.adc1:
-                        self.diode1_log = value_arr[i] + ','
-                    if self.list_of_act_diodes[i].get_adc_address() == self.adc2:
-                        self.diode2_log = value_arr[i] + ','
-                    if self.list_of_act_diodes[i].get_adc_address() == self.adc3:
-                        self.diode3_log = value_arr[i]
-                
-                if not self.file_not_set:  # opens a SET file to APPEND to it
-                    self.file_log = open(self.file_p, 'a')
+                print("updating widgets: success")
 
-                if self.file_not_set:  # opens a NOT SET file to WRITE to it
-                    self.file_not_set = False
-                    time_frame = self.get_time()
-                    filename = 'powermeter_' + time_frame + '.csv'
-                    self.file_p = self.usb_path + filename  # define a name for file
-                    if not self.usb_path == '':
-                        self.file_log = open(self.file_p, 'w')
-                        self.file_log.write(f'PowerMeter: FOLAS -> log @ {time_frame}.\n')  # header of a file
-                        self.file_log.write('diode 0, diode 1, diode 2, diode 4\n')
-                
-                string_tw = self.diode0_log + self.diode1_log + self.diode2_log + self.diode3_log + '\n'
-                self.write_to_file(string_tw)
-                self.reset_values()
+                if self.log_sys:
+
+                    for i in range(self.diodecount):  # saves read values to specified variables in order to keep the right diode orde of values
+                        if self.list_of_act_diodes[i].get_adc_address() == self.adc0:
+                            self.diode0_log = value_arr[i] + ','
+                        if self.list_of_act_diodes[i].get_adc_address() == self.adc1:
+                            self.diode1_log = value_arr[i] + ','
+                        if self.list_of_act_diodes[i].get_adc_address() == self.adc2:
+                            self.diode2_log = value_arr[i] + ','
+                        if self.list_of_act_diodes[i].get_adc_address() == self.adc3:
+                            self.diode3_log = value_arr[i]
+                    
+                    if not self.file_not_set:  # opens a SET file to APPEND to it
+                        self.file_log = open(self.file_p, 'a')
+
+                    if self.file_not_set:  # opens a NOT SET file to WRITE to it
+                        self.file_not_set = False
+                        time_frame = self.get_time()
+                        filename = 'powermeter_' + time_frame + '.csv'
+                        self.file_p = self.usb_path + filename  # define a name for file
+                        if not self.usb_path == '':
+                            self.file_log = open(self.file_p, 'w')
+                            self.file_log.write(f'PowerMeter: FOLAS -> log @ {time_frame}.\n')  # header of a file
+                            self.file_log.write('diode 0, diode 1, diode 2, diode 4\n')
+                    
+                    string_tw = self.diode0_log + self.diode1_log + self.diode2_log + self.diode3_log + '\n'
+                    self.write_to_file(string_tw)
+                    self.reset_values()
             
         return
 
@@ -1217,8 +1224,11 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.menu.add_cascade(label='Exit', menu=exitMenu)
         
         if self.diodecount == 0:
-            messagebox.showerror(title='No diodes connected', message='There are no photodiodes connected to the powermeter.')
-
+            print("zero photodiodes")
+            # messagebox.showwarning(title='No diodes connected', message='There are no photodiodes connected to the powermeter.')
+            print("displayed warning, refreshing")
+            self.refresh()
+        
         self.diode_banners = []
         self.title_labels = []
         self.unit_labels = []
@@ -1230,6 +1240,8 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.factor_buttons = []
 
         if self.diodecount > 0:
+            print("creating widgets")
+
             self.diode_banner = tk.Frame(self, 
                 width=f'{self.wid_width}m', 
                 height=f'{self.frame_height}m', 
@@ -1332,7 +1344,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 y=10, 
                 relwidth=frame_width, 
                 relheight=0.95)  # relative positioning of frames to master window
-
 
         if self.diodecount >= 2:
             self.diode_banner_1 = tk.Frame(self, 
@@ -1437,7 +1448,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 y=10, 
                 relwidth=frame_width, 
                 relheight=0.95)
-
 
         if self.diodecount >= 3:
             self.diode_banner_2 = tk.Frame(self, 
@@ -1647,6 +1657,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 y=10, 
                 relwidth=frame_width,
                 relheight=0.95)  
+        print("widgets created")
 
 ###### 
 ######
