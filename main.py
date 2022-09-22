@@ -1,5 +1,6 @@
 #!/usr/local/lib/  python3
 
+from email import message
 from pigpio import *
 from Diode import Diode
 import tkinter as tk
@@ -52,18 +53,19 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         try:
             self.file_log.close()
         except:
-            print('No open files.')
+            # print('No open files.')
+            pass
         self.quit()
 
     def refresh(self):
         """Calls a function that checks which photodiodes are connected. Calls a function to reorganize the display if neccessary."""
         prev_diodes = self.diodecount
         self.check_diodes()
-        print("checked diodes")
+        # print("checked diodes")
         if not prev_diodes == self.diodecount:
-            print("rewriting frames")
+            # print("rewriting frames")
             self.rewrite_frames()
-            print("rewriting frames: success")            
+            # print("rewriting frames: success")            
         self.source = self.chosen_source
         return
 
@@ -90,7 +92,8 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.file_log.write(string_tw)
             self.file_log.close()
         except:
-            print('Error when writing to a file.')
+            # print('Error when writing to a file.')
+            pass
         return
 
     def reset_values(self):
@@ -124,7 +127,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
               self.active_diodes.append(3)
               self.list_of_act_diodes.append(self.d3)
         self.diodecount = len(self.active_diodes)
-        print("diode count:", self.diodecount)
+        # print("diode count:", self.diodecount)
         return
 
 ######
@@ -134,28 +137,30 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
     def all_children (self) :
         _list = self.winfo_children()
-        print("list of items: ", _list)
+        # print("list of items: ", _list)
         try:
             for item in _list :
                 if item.winfo_children() :
-                    print("in children")
+                    # print("in children")
                     _list.extend(item.winfo_children())
-                    print("list extended")
+                    # print("list extended")
 
             return _list
         except:
-            print("Unable to define children.")
+            # print("Unable to define children.")
+            pass
 
     def rewrite_frames(self):
         try:
             widget_list = self.all_children()
-            print("got list")
+            # print("got list")
             for item in widget_list:
                 item.destroy()
-            print("destroyed children")
+            # print("destroyed children")
             self.create_widgets()
         except:
-            print("Unable to rewrite frames.")
+            # print("Unable to rewrite frames.")
+            pass
 
 ######
 ######
@@ -167,6 +172,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         with open('config.yaml', 'r') as file:
             self.data = yaml.load(file, Loader=yaml.FullLoader)
 
+        with open('calibration.yaml', 'r') as calib:
+            self.calibration = yaml.load(calib, Loader=yaml.FullLoader)
+        
         self.delay_time = 1 / self.data['defaults']['refresh rate']  # sets refresha rate on update timer
 
         # adc and i/o expander addresses 
@@ -211,7 +219,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.wid_width = int((self.width/8)  * ptomm)
         self.label_width = 12
         self.text_width = 20
-        self.autodetect = False
+        self.autodetect = True
         self.reading_pow = False
         self.chosen_source = False 
 
@@ -282,6 +290,290 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.list_of_act_diodes[num].set_multiply_factor(value)
             self.list_of_act_diodes[num].set_multiply_factor_string(text)
             mult_page.destroy()
+
+        def custom_nd(num):
+
+            selected_nd = tk.StringVar()  
+            selected_nd.set('')  
+
+            new_mult_nd = tk.Toplevel(
+                bg=white_ish,
+                relief='flat')
+
+            new_mult_nd.title('ND code')
+            new_mult_nd.geometry(f'250x350+290+30')
+
+            # nd_entry = tk.Label(new_mult_nd,
+            #     font=normalminifont,
+            #     fg=space_blue,
+            #     bg=light_gray,
+            #     justify='center',
+            # )
+
+            def add_to_value(input_str):
+                ndstr = selected_nd.get()
+                ndstr = ndstr + input_str
+                selected_nd.set(ndstr)
+                ndfilter['text'] = ndstr
+
+            def confirm_value(num):
+                wavelength = self.list_of_act_diodes[num].get_wavelength()
+                filters = self.calibration['filters']
+                filters = list(filters.keys())
+                if selected_nd.get() in filters:
+                    if wavelength in self.calibration['calibrated wavelengths']:
+                        self.mult_value = self.calibration['filters'][selected_nd.get()][f'{self.list_of_act_diodes[num].get_wavelength()}']
+                    else:
+                        messagebox.showwarning(title='Not calibrated', message='This ND filter is not calibrated at chosen wavelength.')
+                else:
+                    messagebox.showwarning(title='Not calibrated', message='This ND filter is not yet calibrated.')
+                set_value(self.mult_value, f'{self.mult_value}', num)                
+                new_mult_nd.destroy()
+
+            ndfilter = tk.Label(new_mult_nd,
+                font=outputminifont,
+                fg=space_blue,
+                bg=light_gray, 
+                justify='center',
+                height=2,
+                width=20,
+                text='')
+
+            btn_0 = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='0',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('0'))
+
+            btn_1 = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='1',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('1'))
+
+            btn_2 = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='2',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('2'))
+
+            btn_3 = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='3',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('3'))
+
+            btn_4 = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='4',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('4'))
+
+            btn_5 = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='5',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('5'))
+
+            btn_6 = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='6',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('6'))
+
+            btn_7 = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='7',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('7'))
+
+            btn_8 = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='8',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('8'))
+
+            btn_9 = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='9',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('9'))
+
+            btn_a = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='A',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('a'))
+
+            btn_b = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='B',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('b'))
+
+            btn_c = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='C',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('c'))
+
+            btn_r = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='R',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('r'))
+
+            btn_min = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='-',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('-'))
+
+            btn_nd = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='ND',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('nd'))
+
+            btn_ne = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='NE',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('ne'))
+
+            btn_uv = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='UV',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('uv'))
+
+            btn_nir = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='NIR',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('nir'))
+
+            btn_ir = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=white_ish,
+                font=settingsfont,
+                justify='center',
+                text='IR',
+                width=2,
+                height=2,
+                command=lambda: add_to_value('ir'))
+
+            btn_OK = tk.Button(new_mult_nd, 
+                bg=space_blue,
+                fg=red,
+                font=settingsfont,
+                justify='center',
+                text='ok',
+                width=20,
+                height=2,
+                command=lambda: confirm_value(num))
+
+            ndfilter.place(relx=0.5, rely=0.09, anchor='center')
+
+            btn_0.place(relx=0, rely=0.18)
+            btn_1.place(relx=0.2, rely=0.18)
+            btn_2.place(relx=0.4, rely=0.18)
+            btn_3.place(relx=0.6, rely=0.18)
+            btn_4.place(relx=0.8, rely=0.18)
+            btn_5.place(relx=0, rely=0.33)
+            btn_6.place(relx=0.2, rely=0.33)
+            btn_7.place(relx=0.4, rely=0.33)
+            btn_8.place(relx=0.6, rely=0.33)
+            btn_9.place(relx=0.8, rely=0.33)
+
+            btn_a.place(relx=0, rely=0.48)
+            btn_b.place(relx=0.2, rely=0.48)
+            btn_c.place(relx=0.4, rely=0.48)
+            btn_r.place(relx=0.6, rely=0.48)
+            btn_min.place(relx=0.8, rely=0.48)
+            btn_nd.place(relx=0, rely=0.63)
+            btn_ne.place(relx=0.2, rely=0.63)
+            btn_uv.place(relx=0.4, rely=0.63)
+            btn_nir.place(relx=0.6, rely=0.63)
+            btn_ir.place(relx=0.8, rely=0.63)
+
+            btn_OK.place(relx=0.5, rely=0.89, anchor='center')
 
         def custom_value(num):  # custom value window
             self.mult_value = 0
@@ -455,7 +747,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             relief='flat')
 
         mult_page.title('.')
-        mult_page.geometry('100x400+350+10')
+        mult_page.geometry('240x275+285+85')
 
         btn_ND03 = tk.Button(mult_page, 
             bg=space_blue,
@@ -463,7 +755,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             font=ampfont,
             justify='center',
             text='ND0,3',
-            width=7,
+            width=10,
             height=2,
             command=lambda: set_value(2, 'ND0,3', num))
 
@@ -473,7 +765,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             font=ampfont,
             justify='center',
             text='ND0,6',
-            width=7,
+            width=10,
             height=2,
             command=lambda: set_value(4, 'ND0,6', num))
 
@@ -483,7 +775,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             font=ampfont,
             justify='center',
             text='ND1',
-            width=7,
+            width=10,
             height=2,
             command=lambda: set_value(10, 'ND1', num))
 
@@ -493,7 +785,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             font=ampfont,
             justify='center',
             text='ND2',
-            width=7,
+            width=10,
             height=2,
             command=lambda: set_value(100, 'ND2', num))
 
@@ -503,7 +795,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             font=ampfont,
             justify='center',
             text='ND3',
-            width=7,
+            width=10,
             height=2,
             command=lambda: set_value(1000, 'ND3', num))
 
@@ -513,7 +805,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             font=ampfont,
             justify='center',
             text='ND4',
-            width=7,
+            width=10,
             height=2,
             command=lambda: set_value(10000, 'ND4', num))
 
@@ -523,7 +815,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             font=ampfont,
             justify='center',
             text='reset',
-            width=7,
+            width=23,
             height=2,
             command=lambda: set_value(1, 'mulitply', num))
 
@@ -532,19 +824,30 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             fg=white_ish,
             font=ampfont,
             justify='center',
-            text='custom',
-            width=7,
+            text='custom value',
+            width=10,
             height=2,
             command=lambda: custom_value(num))
 
-        btn_ND03.place(relx=0.5, rely=0.08, anchor='center')
-        btn_ND06.place(relx=0.5, rely=0.20, anchor='center')
-        btn_ND1.place(relx=0.5, rely=0.32, anchor='center')
-        btn_ND2.place(relx=0.5, rely=0.44, anchor='center')
-        btn_ND3.place(relx=0.5, rely=0.56, anchor='center')
-        btn_ND4.place(relx=0.5, rely=0.68, anchor='center')
-        btn_custom.place(relx=0.5, rely=0.80, anchor='center')
-        btn_reset.place(relx=0.5, rely=0.92, anchor='center')
+        btn_customnd = tk.Button(mult_page, 
+            bg=orange,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='custom nd',
+            width=10,
+            height=2,
+            command=lambda: custom_nd(num))
+
+        btn_ND03.place(relx=0.25, rely=0.1, anchor='center')
+        btn_ND06.place(relx=0.25, rely=0.3, anchor='center')
+        btn_ND1.place(relx=0.25, rely=0.5, anchor='center')
+        btn_ND2.place(relx=0.75, rely=0.1, anchor='center')
+        btn_ND3.place(relx=0.75, rely=0.3, anchor='center')
+        btn_ND4.place(relx=0.75, rely=0.5, anchor='center')
+        btn_custom.place(relx=0.25, rely=0.7, anchor='center')
+        btn_customnd.place(relx=0.75, rely=0.7, anchor='center')
+        btn_reset.place(relx=0.5, rely=0.9, anchor='center')
 
 
         return
@@ -1098,14 +1401,14 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         btn_auto.place(relx=0, rely=0.68)
         
         def man_change_range(rang, num):
-            if not self.autodetect:
-                self.list_of_act_diodes[num].set_amplification(rang)
-                self.amp_levels[num].set(f'amp level {rang}')
-                new_range.destroy()
+            # if not self.autodetect:
+            self.list_of_act_diodes[num].set_amplification(rang)
+            self.amp_levels[num].set(f'amp level {rang}')
+            new_range.destroy()
 
-            else:
-                messagebox.showwarning(title='Auto-detection enabled', 
-                    message='Auto-detection of photodiodes is enabled. In order to choose your own amplification range, disable it in the settings.')
+            # else:
+            #     messagebox.showwarning(title='Auto-detection enabled', 
+            #         message='Auto-detection of photodiodes is enabled. In order to choose your own amplification range, disable it in the settings.')
 
         def set_auto_amp(num):
             self.list_of_act_diodes[num].toggle_true_auto_range()
@@ -1133,7 +1436,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 i.read_data_adc()  # reads voltages on active photodiodes
 
         if not self.diodecount == 0:
-            print("updating widgets")
+            # print("updating widgets")
 
             if self.reading_pow:
 
@@ -1151,7 +1454,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                     self.amp_buttons[i]['text'] = self.amp_levels[i].get()               
                     self.factor_buttons[i]['text'] = self.list_of_act_diodes[i].get_multiply_factor_string()
 
-                print("updating widgets: success")
+                # print("updating widgets: success")
 
                 if self.log_sys:
 
@@ -1224,9 +1527,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.menu.add_cascade(label='Exit', menu=exitMenu)
         
         if self.diodecount == 0:
-            print("zero photodiodes")
+            # print("zero photodiodes")
             # messagebox.showwarning(title='No diodes connected', message='There are no photodiodes connected to the powermeter.')
-            print("displayed warning, refreshing")
+            # print("displayed warning, refreshing")
             self.refresh()
         
         self.diode_banners = []
@@ -1240,7 +1543,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.factor_buttons = []
 
         if self.diodecount > 0:
-            print("creating widgets")
+            # print("creating widgets")
 
             self.diode_banner = tk.Frame(self, 
                 width=f'{self.wid_width}m', 
@@ -1657,7 +1960,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 y=10, 
                 relwidth=frame_width,
                 relheight=0.95)  
-        print("widgets created")
+        # print("widgets created")
 
 ###### 
 ######

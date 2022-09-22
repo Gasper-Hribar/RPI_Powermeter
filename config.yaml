@@ -7,7 +7,7 @@
 #
 
 defaults:
-  refresh rate: 2  # [Hz]
+  refresh rate: 3  # [Hz]
 
 diode ports:
   diodeport 1:
