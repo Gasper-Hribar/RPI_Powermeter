@@ -9,6 +9,7 @@ import datetime
 import os
 import yaml
 from threading import Timer
+import timeit
 
 if os.environ.get('DISPLAY','') == '':
     os.environ.__setitem__('DISPLAY', ':0.0')  # sets display environment variable to 0.0
@@ -174,8 +175,15 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
         with open('calibration.yaml', 'r') as calib:
             self.calibration = yaml.load(calib, Loader=yaml.FullLoader)
+
+        with open('last_settings.yaml', 'r') as saved:
+            self.saved_set = yaml.load(saved, Loader=yaml.FullLoader)
+
+        self.default_freq = self.data['defaults']['refresh rate']
+        self.refresh_freq = self.saved_set['last setting']['refresh rate']
         
-        self.delay_time = 1 / self.data['defaults']['refresh rate']  # sets refresha rate on update timer
+        self.default_delay = 1 / self.default_freq
+        self.delay_time = 1 / self.refresh_freq  # sets refresh rate on update timer
 
         # adc and i/o expander addresses 
         self.adc0 = self.data['diode ports']['diodeport 1']['i2c address']['adc']
@@ -222,6 +230,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.autodetect = True
         self.reading_pow = False
         self.chosen_source = False 
+        self.changed_freq = False
 
         # log boolean variable, default = False
         self.log_sys = False
@@ -275,6 +284,11 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.wavelength_text2.set('1030 nm')
         self.wavelength_text3.set('1030 nm')
 
+        # settings page global variables
+
+        self.refresh_rate = tk.StringVar(self)        
+        self.refresh_rate.set(f'{self.refresh_freq}')
+
         return
 
 ######
@@ -291,6 +305,199 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.list_of_act_diodes[num].set_multiply_factor_string(text)
             mult_page.destroy()
 
+        def confirm_ndvalue(str, num):  # function confirm_value reads ND filter designation in selected_nd and gets it's multiplication factor from calibration file
+            wavelength = self.list_of_act_diodes[num].get_wavelength()
+            filters = self.calibration['filters']
+            filters = list(filters.keys())
+            if str in filters:
+                if wavelength in self.calibration['calibrated wavelengths']:
+                    self.mult_value = self.calibration['filters'][str][f'{self.list_of_act_diodes[num].get_wavelength()}']
+                else:
+                    messagebox.showwarning(title='Not calibrated', message='This ND filter is not calibrated at chosen wavelength.')
+            else:
+                messagebox.showwarning(title='Not calibrated', message='This ND filter is not yet calibrated.')
+            set_value(self.mult_value, f'{self.mult_value}', num)
+
+        def nd1filters(num):
+            self.mult_value = 0
+
+            def set_nd_val(str, num):
+                nd1_page.destroy()
+                confirm_ndvalue(str, num) 
+
+            def set_ex_value(value, text, num):
+                nd1_page.destroy()
+                set_value(value, text, num)
+                
+            nd1_page = tk.Toplevel(
+                bg=white_ish,
+                relief='flat'
+                )
+
+            nd1_page.title('ND1 filters')
+            nd1_page.geometry(f'120x120+350+112')
+
+            btn_ND1_val = tk.Button(nd1_page, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='ND1',
+            width=10,
+            height=2,
+            command=lambda: set_ex_value(10, 'ND1', num))
+
+            btn_ND10A = tk.Button(nd1_page, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='ND10A',
+            width=10,
+            height=2,
+            command=lambda: set_nd_val('nd10a', num))
+
+            btn_ND1_val.place(relx=0.5, rely=0.3, anchor='center')
+            btn_ND10A.place(relx=0.5, rely=0.75, anchor='center')
+
+
+        def nd2filters(num): 
+
+            def set_nd_val(str, num):
+                nd2_page.destroy()
+                confirm_ndvalue(str, num)
+
+            def set_ex_value(value, text, num):
+                nd2_page.destroy()
+                set_value(value, text, num)                   
+                
+            nd2_page = tk.Toplevel(
+                bg=white_ish,
+                relief='flat'
+                )
+
+            nd2_page.title('ND2 filters')
+            nd2_page.geometry(f'120x170+350+112')
+
+            btn_ND2_val = tk.Button(nd2_page, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='ND2',
+            width=10,
+            height=2,
+            command=lambda: set_ex_value(100, 'ND2', num))
+
+            btn_NE20B = tk.Button(nd2_page, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='NE20B',
+            width=10,
+            height=2,
+            command=lambda: set_nd_val('ne20b', num))
+
+            btn_NDUV520A = tk.Button(nd2_page, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='NDUV520A',
+            width=10,
+            height=2,
+            command=lambda: set_nd_val('nduv520a', num))
+
+            btn_ND2_val.place(relx=0.5, rely=0.18, anchor='center')
+            btn_NE20B.place(relx=0.5, rely=0.5, anchor='center')
+            btn_NDUV520A.place(relx=0.5, rely=0.82, anchor='center')
+
+
+        def nd3filters(num):
+
+            def set_nd_val(str, num):
+                nd3_page.destroy()
+                confirm_ndvalue(str, num)
+
+            def set_ex_value(value, text, num):
+                nd3_page.destroy()
+                set_value(value, text, num) 
+            
+            nd3_page = tk.Toplevel(
+                bg=white_ish,
+                relief='flat'
+                )
+
+            nd3_page.title('ND3 filters')
+            nd3_page.geometry(f'120x120+350+112')
+
+            btn_ND3_val = tk.Button(nd3_page, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='ND3',
+            width=10,
+            height=2,
+            command=lambda: set_ex_value(1000, 'ND3', num))
+
+            btn_NDUV530A = tk.Button(nd3_page, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='NDUV530A',
+            width=10,
+            height=2,
+            command=lambda: set_nd_val('nduv530a', num))
+
+            btn_ND3_val.place(relx=0.5, rely=0.3, anchor='center')
+            btn_NDUV530A.place(relx=0.5, rely=0.75, anchor='center')
+
+
+        def nd4filters(num):
+
+            def set_nd_val(str, num):
+                nd4_page.destroy()
+                confirm_ndvalue(str, num)
+
+            def set_ex_value(value, text, num):
+                nd4_page.destroy()
+                set_value(value, text, num)
+            
+            nd4_page = tk.Toplevel(
+                bg=white_ish,
+                relief='flat'
+                )
+
+            nd4_page.title('ND4 filters')
+            nd4_page.geometry(f'120x120+350+112')
+
+            btn_ND4_val = tk.Button(nd4_page, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='ND4',
+            width=10,
+            height=2,
+            command=lambda: set_ex_value(10000, 'ND4', num))
+
+            btn_NE40B = tk.Button(nd4_page, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='NE40B',
+            width=10,
+            height=2,
+            command=lambda: set_nd_val('ne40b', num))
+
+            btn_ND4_val.place(relx=0.5, rely=0.3, anchor='center')
+            btn_NE40B.place(relx=0.5, rely=0.75, anchor='center')
+
+
         def custom_nd(num):
 
             selected_nd = tk.StringVar()  
@@ -303,20 +510,13 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             new_mult_nd.title('ND code')
             new_mult_nd.geometry(f'250x350+290+30')
 
-            # nd_entry = tk.Label(new_mult_nd,
-            #     font=normalminifont,
-            #     fg=space_blue,
-            #     bg=light_gray,
-            #     justify='center',
-            # )
-
-            def add_to_value(input_str):
+            def add_to_value(input_str):  # this add_to_value function concats a string designation of ND filter.
                 ndstr = selected_nd.get()
                 ndstr = ndstr + input_str
                 selected_nd.set(ndstr)
                 ndfilter['text'] = ndstr
 
-            def confirm_value(num):
+            def confirm_value(num):  # function confirm_value reads ND filter designation in selected_nd and gets it's multiplication factor from calibration file
                 wavelength = self.list_of_act_diodes[num].get_wavelength()
                 filters = self.calibration['filters']
                 filters = list(filters.keys())
@@ -329,6 +529,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                     messagebox.showwarning(title='Not calibrated', message='This ND filter is not yet calibrated.')
                 set_value(self.mult_value, f'{self.mult_value}', num)                
                 new_mult_nd.destroy()
+                mult_page.destroy()
 
             ndfilter = tk.Label(new_mult_nd,
                 font=outputminifont,
@@ -777,7 +978,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             text='ND1',
             width=10,
             height=2,
-            command=lambda: set_value(10, 'ND1', num))
+            command=lambda: nd1filters(num))
 
         btn_ND2 = tk.Button(mult_page, 
             bg=space_blue,
@@ -787,7 +988,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             text='ND2',
             width=10,
             height=2,
-            command=lambda: set_value(100, 'ND2', num))
+            command=lambda: nd2filters(num))
 
         btn_ND3 = tk.Button(mult_page, 
             bg=space_blue,
@@ -797,7 +998,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             text='ND3',
             width=10,
             height=2,
-            command=lambda: set_value(1000, 'ND3', num))
+            command=lambda: nd3filters(num))
 
         btn_ND4 = tk.Button(mult_page, 
             bg=space_blue,
@@ -807,7 +1008,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             text='ND4',
             width=10,
             height=2,
-            command=lambda: set_value(10000, 'ND4', num))
+            command=lambda: nd4filters(num))
 
         btn_reset = tk.Button(mult_page, 
             bg=teal,
@@ -871,46 +1072,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         setts_page.title('Settings')
         setts_page.geometry('500x300+150+10')
 
-        """SOURCE SELECTION"""
-
-        # msg = tk.Message(setts_page,  # introductory message
-        #     text="Welcome to Settings", 
-        #     width=200,
-        #     bg=light_gray,
-        #     font=settingsfont,
-        #     fg=dark_blue,
-        #     justify='center')
-        # msg.place(relx=0.5, rely=0.05, anchor='center')
-
-        # set_source_msg = tk.Message(setts_page,  # source selection message
-        #     text="Select source:", 
-        #     width=100,
-        #     bg=light_gray,
-        #     justify='center')
-        # set_source_msg.place(relx=0.25, rely=0.2, anchor='center')
-
-        # volt_source_btn = tk.Button(setts_page,  # select voltage button
-        #     bg=teal,
-        #     fg=white_ish,
-        #     font=settingsfont,
-        #     justify='center',
-        #     text='voltage',
-        #     width=8,
-        #     height=1,
-        #     command=lambda: choose_volt())
-        # volt_source_btn.place(relx=0.49, rely=0.20, anchor='center')
-
-        # pow_source_btn = tk.Button(setts_page,  # select power button
-        #     bg=teal,
-        #     fg=white_ish,
-        #     font=settingsfont,
-        #     justify='center',
-        #     text='power',
-        #     width=8,
-        #     height=1,
-        #     command=lambda: choose_pow())
-        # pow_source_btn.place(relx=0.70, rely=0.20, anchor='center')
-
         """AUTO DETECTION"""
 
         en_autodetect_msg = tk.Message(setts_page,  # toggle auto detection message
@@ -922,7 +1083,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         en_autodetect_msg.place(relx=0.2, rely=0.12, anchor='center')
 
         if self.autodetect:  # setting button colours according to auto detection 
-        # if True:
             enb_color = teal
             disb_color = light_gray
             disb_fg = black
@@ -998,6 +1158,48 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             command=lambda: stop_log())
         stoplog_diode_btn.place(relx=0.75, rely=0.3, anchor='center')
 
+        """REFRESH RATE SETTINGS"""
+
+        ref_rate_msg = tk.Message(setts_page,  # start logging message
+            text="Refresh rate:", 
+            width=120,
+            bg=light_gray,
+            fg=black,
+            justify='center')
+        ref_rate_msg.place(relx=0.2, rely=0.48, anchor='center')
+
+        ref_rate_label = tk.Label(setts_page,  # label with current refresh rate
+            bg=logb_color,
+            fg=logb_fg,
+            font=settingsfont,
+            justify='center',
+            text=f'{self.refresh_rate.get()} Hz',
+            width=8,
+            height=1)
+        ref_rate_label.place(relx=0.5, rely=0.48, anchor='center')
+
+        up_ref_rate_btn = tk.Button(setts_page,  # increase refresh rate
+            bg=light_gray,
+            fg=black,
+            font=settingsfont,
+            justify='center',
+            text='+',
+            width=2,
+            height=1,
+            command=lambda: increase_ref_rate())
+        up_ref_rate_btn.place(relx=0.68, rely=0.48, anchor='center')
+
+        down_ref_rate_btn = tk.Button(setts_page,  # decrease refresh rate
+            bg=light_gray,
+            fg=black,
+            font=settingsfont,
+            justify='center',
+            text='-',
+            width=2,
+            height=1,
+            command=lambda: decrease_ref_rate())
+        down_ref_rate_btn.place(relx=0.81, rely=0.48, anchor='center')
+
         """MISCELLANEOUS BUTTONS"""
 
         eject_btn = tk.Button(setts_page, 
@@ -1052,18 +1254,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.file_log.close()
             setts_page.destroy()
 
-        # def choose_volt():
-        #     self.source = True
-        #     self.chosen_source = True
-        #     self.reading_pow = False
-        #     setts_page.destroy()
-
-        # def choose_pow():
-        #     self.source = False
-        #     self.chosen_source = False
-        #     self.reading_pow = True
-        #     setts_page.destroy()
-
         def enable_auto():
             self.autodetect = True
             setts_page.destroy()
@@ -1071,11 +1261,43 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         def disable_auto():
             self.autodetect = False
             setts_page.destroy()
+        
+        def increase_ref_rate():
+            with open("last_settings.yaml", "r") as file:
+                saved_set = yaml.load(file, Loader=yaml.FullLoader)
+                if self.refresh_freq < 10:
+                    self.refresh_freq = saved_set['last setting']['refresh rate'] + 1
+                else:
+                    self.refresh_freq = 10
+
+            with open("last_settings.yaml", "w") as file:
+                data = {'last setting': {'refresh rate': self.refresh_freq}}
+                yaml.dump(data, file, default_flow_style=False, allow_unicode=True)
+            
+            self.refresh_rate.set(f'{self.refresh_freq}')
+            self.delay_time = 1 / self.refresh_freq
+            self.changed_freq = True
+
+        def decrease_ref_rate():
+            with open("last_settings.yaml", "r") as file:
+                saved_set = yaml.load(file, Loader=yaml.FullLoader)
+                if self.refresh_freq > 1:
+                    self.refresh_freq = saved_set['last setting']['refresh rate'] - 1
+                else:
+                    self.refresh_freq = 1
+            with open("last_settings.yaml", "w") as file:
+                data = {'last setting': {'refresh rate': self.refresh_freq}}
+                yaml.dump(data, file, default_flow_style=False, allow_unicode=True)
+            
+            self.refresh_rate.set(f'{self.refresh_freq}')
+            self.delay_time = 1 / self.refresh_freq
+            self.changed_freq = True
+
 
         def reset():  # resets all settings to their default values
             self.source = False
             self.reading_pow = True
-            self.autodetect = False
+            self.autodetect = True
             if self.diodecount > 0:
                 self.voltage0_factor = 1
                 self.wavelength_text0.set('1030 nm')
@@ -1093,15 +1315,15 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             if self.diodecount >= 3:
                 self.voltage2_factor = 1
                 self.wavelength_text2.set('1030 nm')
-                # self.list_of_act_diodes[2].set_wavelength(1030)
-                # self.list_of_act_diodes[2].toggle_true_auto_range()
+                self.list_of_act_diodes[2].set_wavelength(1030)
+                self.list_of_act_diodes[2].toggle_true_auto_range()
                 self.amp_level2.set('amp level auto')
                 self.multi_text2.set('multiply')
             if self.diodecount == 4:
                 self.voltage3_factor = 1
                 self.wavelength_text3.set('1030 nm')
-                # self.list_of_act_diodes[3].set_wavelength(1030)
-                # self.list_of_act_diodes[3].toggle_true_auto_range()
+                self.list_of_act_diodes[3].set_wavelength(1030)
+                self.list_of_act_diodes[3].toggle_true_auto_range()
                 self.amp_level3.set('amp level auto')
                 self.multi_text3.set('multiply')
             setts_page.destroy()
@@ -1422,21 +1644,31 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
     def update_widgets(self):
         """Updates voltages and rewrites them on screen."""
-
+        # start = time.time()
+        # print("up")
         if self.autodetect:            
             self.refresh()
 
         self.diodecount = len(self.list_of_act_diodes)
+
+        start = time.time()
 
         if self.source:
             self.reading_pow = False
         else:
             self.reading_pow = True
             for i in self.list_of_act_diodes:
+                # start = time.time()
                 i.read_data_adc()  # reads voltages on active photodiodes
+                # stop = time.time()
+                # print(f'{stop - start}')
+
+        stop = time.time()
+        print(f'{stop - start}')
 
         if not self.diodecount == 0:
             # print("updating widgets")
+            print(self.diodecount)
 
             if self.reading_pow:
 
@@ -1444,7 +1676,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 value_arr = []
 
                 for i in range(self.diodecount):  # updates all variables on displayed frames
-                    value = f'{(round(self.list_of_act_diodes[i].get_power(), 5)):.3f}'[:7]
+                    # start = time.time()
+                    # print(i)
+                    value = f'{(round(self.list_of_act_diodes[i].get_power(), 5)):.2f}'[:7]
                     value_arr.append(value)
                     self.unit_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_power_unit()}'
                     self.output_labels[i]['text'] = value
@@ -1453,7 +1687,12 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                     self.amp_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_exposure()}'
                     self.amp_buttons[i]['text'] = self.amp_levels[i].get()               
                     self.factor_buttons[i]['text'] = self.list_of_act_diodes[i].get_multiply_factor_string()
+                   
+                    # stop = time.time()
+                    # print(f'{stop - start}')
 
+                # stop = time.time()
+                # print(f'{stop - start}')
                 # print("updating widgets: success")
 
                 if self.log_sys:
@@ -1484,6 +1723,19 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                     string_tw = self.diode0_log + self.diode1_log + self.diode2_log + self.diode3_log + '\n'
                     self.write_to_file(string_tw)
                     self.reset_values()
+
+        # stop = time.time()
+        # print(f'{stop - start}')
+        """
+        Changing refresh rate of GUI.
+        """
+
+        if self.changed_freq:
+            self.changed_freq = False
+            self.T.cancel()
+            # self.refresh()
+            self.T = updateTimer(self.delay_time, self.update_widgets)  # calls a timer to update values on the GUI
+            self.T.start()
             
         return
 
@@ -1981,7 +2233,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.configure(bg=space_blue)
         self.config(cursor="none")
 
-        self.d0.choose_source(self.source)
         self.create_widgets()  # creates frames with all widgets in them
 
         self.T = updateTimer(self.delay_time, self.update_widgets)  # calls a timer to update values on the GUI
@@ -2003,15 +2254,20 @@ class updateTimer():
     """
 
     def __init__(self, t, hFunction):
-        self.t=t
+        self.t = t
         self.hFunction = hFunction
         self.thread = Timer(self.t, self.handle_function)
+    
+    def update_freq(self, t):
+        self.t = t
+        self.handle_function()
 
     def handle_function(self):
         self.hFunction()
         self.thread = Timer(self.t, self.handle_function)
         self.thread.start()
 
+    
     def start(self):
         self.thread.start()
 

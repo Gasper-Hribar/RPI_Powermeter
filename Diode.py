@@ -36,10 +36,11 @@ class Diode:
     diodeCount = 0
     not_set = True
     int_ref_adc = 2.048
-    tresh_up = 1.91
+    tresh_up = 1.8
     tresh_down = 0.2
     amp_res = [1000, 3000, 10000, 30000, 100000, 300000, 1000000, 3000000]
     units = ['W', 'mW', 'uW', 'nW', 'pW']
+    delay = 0.005
 
     file = open('calibration.yaml')
     caldata = yaml.load(file, Loader=yaml.FullLoader)
@@ -80,10 +81,12 @@ class Diode:
         self.overexposed = False
         self.underexposed = False
         self.active = True
+        self.wasactive = False
         self.wavelength = 1030
         self.multiply_factor = 1
         self.multiply_factor_string = 'multiply'
         self.voltage_address = 2.048
+        self.calibration = []
         Diode.diodeCount += 1
         
     def get_name(self):
@@ -169,24 +172,41 @@ class Diode:
         return
 
     def is_active(self):
-        """Checks if a photodiode is connected. Updates name."""        
-        
+        """Checks if a photodiode is connected. Updates name."""
+        # start = time.time()
+
+        activity = False
         self.read_voltage_add()
-        self.choose_source(False)
-        if self.voltage_address < 2.048 and self.voltage_address >= 0.0:
-            # print('True: ', self.voltage_address)
+        self.choose_source(True)
+
+        if self.voltage_address < 2.0 and self.voltage_address >= 0.0:
+            # print(f'True: {self.adc_add} - ', self.voltage_address)                    
             self.active = True
+
+            if not self.wasactive:                
+                file = open('calibration.yaml', 'r')
+                self.calibration = yaml.load(file, Loader=yaml.FullLoader)
+                file.close()
+
             try:
                 self.set_name()
             except:
-                pass 
-            return True
+                pass
+            self.wasactive = self.active
+            activity = True
+        
         else:
             # print('False: ', self.voltage_address)
             self.multiply_factor = 1
             self.multiply_factor_string = 'multiply'
             self.active = False
-            return False
+            self.wasactive = self.active
+            activity = False
+
+        # stop = time.time()
+        # print(f'{stop - start}')
+
+        return activity
 
     def set_i2c(self):
         """Initializes I2C protocol for two I2C devices: ADC and I/O Expander with addresses given to constructor."""
@@ -243,30 +263,37 @@ class Diode:
 
     def read_voltage_add(self):
         """Reads voltage address on a photodiode."""
+
         while True:
+            
             volt = self.voltage_address
 
             self.choose_source(True)
             Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_OUT_REG, 0x00)
-            time.sleep(0.01)
+            time.sleep(Diode.delay)
 
+        
             (c, data) = Diode.rpi.i2c_read_device(self.h, 2)        
             self.voltage_address = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))
+            # time.sleep(0.005)
+            
 
             if (self.voltage_address - volt) <= (self.voltage_address*0.05):
                 break
-        # print('reading voltage', self.voltage_address, (int.from_bytes(data, 'big', signed=True)))
+        # print('reading voltage on ', self.adc_add, ": ", self.voltage_address, (int.from_bytes(data, 'big', signed=True)))
 
         return 
 
     def read_data_adc(self):
         """Reads data through I2C protocol from A/D Converter with address given to the constructor."""
+        # start = time.time()
 
-        file = open('calibration.yaml', 'r')
-        calibration = yaml.load(file, Loader=yaml.FullLoader)
-        file.close()
+        # stop = time.time()
+        # print(f'{stop - start}')
+        
         # This part defines in which wavelength section photodiode is measuring the power of light.
-        sections = calibration['diodes'][f'{self.name}']['sections']
+        
+        sections = self.calibration['diodes'][f'{self.name}']['sections']
         sec_keys = list(sections.keys())
         true_section = ''
         for i in sec_keys:
@@ -279,14 +306,20 @@ class Diode:
             else:
                 true_section = ''
 
+        
+
         if self.is_active():
             self.choose_source(False)
             Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
-            time.sleep(0.01)
+            time.sleep(Diode.delay)
 
             while True:
+                # start = time.time()
+
                 (c, data) = Diode.rpi.i2c_read_device(self.h, 2)        
                 self.power_read = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))
+                
+                
                 # print('reading power')
                 if self.power_read > Diode.tresh_up:
                     ex = self.change_amp(False)
@@ -300,16 +333,16 @@ class Diode:
                     volt = self.power_read
                     current = volt / Diode.amp_res[self.amp_bit_dg408]
                     # print('current: ', current)
-                    if calibration['diodes'][f'{self.name}'][true_section]['type'] == 'exp':
-                        self.power_read = (current * (calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength)))
-                    if calibration['diodes'][f'{self.name}'][true_section]['type'] == 'poly':
-                        poly_power = len(calibration['diodes'][f'{self.name}'][true_section]['eq'])
+                    if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'exp':
+                        self.power_read = (current * (self.calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(self.calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength)))
+                    if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'poly':
+                        poly_power = len(self.calibration['diodes'][f'{self.name}'][true_section]['eq'])
                         self.power_read = 0
                         for i in range(poly_power):
-                            self.power_read += (current * (calibration['diodes'][f'{self.name}'][true_section]['eq'][i] * (self.wavelength**i)))
+                            self.power_read += (current * (self.calibration['diodes'][f'{self.name}'][true_section]['eq'][i] * (self.wavelength**i)))
                     
                     if self.wavelength in Diode.specific_wavelengths:
-                        self.power_read = calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'][f'{int(self.amp_bit_dg408)}'] * self.power_read
+                        self.power_read = self.calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'][f'{int(self.amp_bit_dg408)}'] * self.power_read
 
                     self.power_read = self.multiply_factor * self.power_read
 
@@ -335,6 +368,13 @@ class Diode:
                     self.overexposed = False
                     break
 
+                # stop = time.time()
+                # print(f'{stop - start}')
+
                 if ex == 1:
                     return
+
+        # stop = time.time()
+        # print(f'{stop - start}')      
+          
         return
