@@ -8,8 +8,8 @@ import tkinter.messagebox as messagebox
 import datetime
 import os
 import yaml
-from threading import Timer
-import timeit
+import threading
+from time import sleep as sleep
 
 if os.environ.get('DISPLAY','') == '':
     os.environ.__setitem__('DISPLAY', ':0.0')  # sets display environment variable to 0.0
@@ -54,27 +54,27 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         try:
             self.file_log.close()
         except:
-            # print('No open files.')
             pass
         self.quit()
 
     def refresh(self):
         """Calls a function that checks which photodiodes are connected. Calls a function to reorganize the display if neccessary."""
-        prev_diodes = self.diodecount
-        self.check_diodes()
-        # print("checked diodes")
-        if not prev_diodes == self.diodecount:
-            # print("rewriting frames")
-            self.rewrite_frames()
-            # print("rewriting frames: success")            
-        self.source = self.chosen_source
+        
+        if not self.changed_freq:
+            prev_diodes = self.diodecount
+            self.check_diodes()
+
+            if not prev_diodes == self.diodecount:
+                self.rewrite_frames()  
+
+            self.source = self.chosen_source
+
         return
 
     def get_time(self):
         """Returns current time as string. Format: YYYY-MM-DD_HH-MM-SS."""
         ct = datetime.datetime.now()
         time_string = f'{ct}'[0:10] + '_' + f'{ct}'[11:13] + '-' + f'{ct}'[14:16] + '-' + f'{ct}'[17:19]
-        # print(time_string)
         return time_string
 
     def get_usb_path(self):
@@ -93,7 +93,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.file_log.write(string_tw)
             self.file_log.close()
         except:
-            # print('Error when writing to a file.')
             pass
         return
 
@@ -113,8 +112,11 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
     def check_diodes(self):
         """Performs a check on active diodes. Overwrites arrays that include active diodes used later in app. Updates diode count."""        
+        
         self.active_diodes = []
         self.list_of_act_diodes = []
+        self.diodecount = 0
+
         if self.d0.is_active():
                 self.active_diodes.append(0)
                 self.list_of_act_diodes.append(self.d0)
@@ -128,7 +130,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
               self.active_diodes.append(3)
               self.list_of_act_diodes.append(self.d3)
         self.diodecount = len(self.active_diodes)
-        # print("diode count:", self.diodecount)
         return
 
 ######
@@ -138,29 +139,24 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
     def all_children (self) :
         _list = self.winfo_children()
-        # print("list of items: ", _list)
         try:
             for item in _list :
                 if item.winfo_children() :
-                    # print("in children")
                     _list.extend(item.winfo_children())
-                    # print("list extended")
 
             return _list
         except:
-            # print("Unable to define children.")
             pass
 
     def rewrite_frames(self):
+
         try:
             widget_list = self.all_children()
-            # print("got list")
             for item in widget_list:
                 item.destroy()
-            # print("destroyed children")
+
             self.create_widgets()
         except:
-            # print("Unable to rewrite frames.")
             pass
 
 ######
@@ -285,7 +281,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.wavelength_text3.set('1030 nm')
 
         # settings page global variables
-
         self.refresh_rate = tk.StringVar(self)        
         self.refresh_rate.set(f'{self.refresh_freq}')
 
@@ -521,12 +516,16 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 filters = self.calibration['filters']
                 filters = list(filters.keys())
                 if selected_nd.get() in filters:
+
                     if wavelength in self.calibration['calibrated wavelengths']:
                         self.mult_value = self.calibration['filters'][selected_nd.get()][f'{self.list_of_act_diodes[num].get_wavelength()}']
+                    
                     else:
                         messagebox.showwarning(title='Not calibrated', message='This ND filter is not calibrated at chosen wavelength.')
+                
                 else:
                     messagebox.showwarning(title='Not calibrated', message='This ND filter is not yet calibrated.')
+                
                 set_value(self.mult_value, f'{self.mult_value}', num)                
                 new_mult_nd.destroy()
                 mult_page.destroy()
@@ -1050,7 +1049,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         btn_customnd.place(relx=0.75, rely=0.7, anchor='center')
         btn_reset.place(relx=0.5, rely=0.9, anchor='center')
 
-
         return
 
 ###### 
@@ -1168,7 +1166,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             justify='center')
         ref_rate_msg.place(relx=0.2, rely=0.48, anchor='center')
 
-        ref_rate_label = tk.Label(setts_page,  # label with current refresh rate
+        self.ref_rate_label = tk.Label(setts_page,  # label with current refresh rate
             bg=logb_color,
             fg=logb_fg,
             font=settingsfont,
@@ -1176,7 +1174,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             text=f'{self.refresh_rate.get()} Hz',
             width=8,
             height=1)
-        ref_rate_label.place(relx=0.5, rely=0.48, anchor='center')
+        self.ref_rate_label.place(relx=0.42, rely=0.48, anchor='center')
 
         up_ref_rate_btn = tk.Button(setts_page,  # increase refresh rate
             bg=light_gray,
@@ -1187,7 +1185,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             width=2,
             height=1,
             command=lambda: increase_ref_rate())
-        up_ref_rate_btn.place(relx=0.68, rely=0.48, anchor='center')
+        up_ref_rate_btn.place(relx=0.563, rely=0.48, anchor='center')
 
         down_ref_rate_btn = tk.Button(setts_page,  # decrease refresh rate
             bg=light_gray,
@@ -1198,7 +1196,19 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             width=2,
             height=1,
             command=lambda: decrease_ref_rate())
-        down_ref_rate_btn.place(relx=0.81, rely=0.48, anchor='center')
+        down_ref_rate_btn.place(relx=0.685, rely=0.48, anchor='center')
+
+        set_ref_rate_btn = tk.Button(setts_page,  # confirm refresh rate
+            bg=teal,
+            fg=white_ish,
+            font=settingsfont,
+            justify='center',
+            text='ok',
+            width=2,
+            height=1,
+            command=lambda: confirm_ref_rate())
+        set_ref_rate_btn.place(relx=0.815, rely=0.48, anchor='center')
+
 
         """MISCELLANEOUS BUTTONS"""
 
@@ -1274,24 +1284,55 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 data = {'last setting': {'refresh rate': self.refresh_freq}}
                 yaml.dump(data, file, default_flow_style=False, allow_unicode=True)
             
+
             self.refresh_rate.set(f'{self.refresh_freq}')
-            self.delay_time = 1 / self.refresh_freq
-            self.changed_freq = True
+            self.ref_rate_label.destroy()
+            self.ref_rate_label = tk.Label(setts_page,  # label with current refresh rate
+                bg=logb_color,
+                fg=logb_fg,
+                font=settingsfont,
+                justify='center',
+                text=f'{self.refresh_rate.get()} Hz',
+                width=8,
+                height=1)
+            self.ref_rate_label.place(relx=0.42, rely=0.48, anchor='center')
+            
+            return
 
         def decrease_ref_rate():
             with open("last_settings.yaml", "r") as file:
                 saved_set = yaml.load(file, Loader=yaml.FullLoader)
+
                 if self.refresh_freq > 1:
                     self.refresh_freq = saved_set['last setting']['refresh rate'] - 1
+
                 else:
                     self.refresh_freq = 1
+
             with open("last_settings.yaml", "w") as file:
                 data = {'last setting': {'refresh rate': self.refresh_freq}}
                 yaml.dump(data, file, default_flow_style=False, allow_unicode=True)
-            
+
             self.refresh_rate.set(f'{self.refresh_freq}')
+            self.ref_rate_label.destroy()
+            self.ref_rate_label = tk.Label(setts_page,  # label with current refresh rate
+                bg=logb_color,
+                fg=logb_fg,
+                font=settingsfont,
+                justify='center',
+                text=f'{self.refresh_rate.get()} Hz',
+                width=8,
+                height=1)
+            self.ref_rate_label.place(relx=0.42, rely=0.48, anchor='center')
+            
+            return
+        
+        def confirm_ref_rate():
             self.delay_time = 1 / self.refresh_freq
             self.changed_freq = True
+            setts_page.destroy()
+            
+            return
 
 
         def reset():  # resets all settings to their default values
@@ -1326,6 +1367,17 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 self.list_of_act_diodes[3].toggle_true_auto_range()
                 self.amp_level3.set('amp level auto')
                 self.multi_text3.set('multiply')
+
+            self.refresh_rate.set(f'{self.default_freq}')
+            self.delay_time = 1 / self.default_freq
+            self.changed_freq = True
+
+            with open("last_settings.yaml", "w") as file:
+                data = {'last setting': {'refresh rate': self.default_freq}}
+                yaml.dump(data, file, default_flow_style=False, allow_unicode=True)
+
+            self.T.cancel()
+
             setts_page.destroy()
             self.update_widgets()
             return
@@ -1483,23 +1535,11 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             if self.wave_value > 400 and self.wave_value <= 1100:
                 self.wavelength_texts[num].set(f'{self.wave_value} nm')
                 self.list_of_act_diodes[num].set_wavelength(self.wave_value)
-                # if num == 0:
-                #     self.wavelength_text0.set(f'{self.wave_value} nm')
-                #     self.list_of_act_diodes[0].set_wavelength(self.wave_value)
-                # elif num == 1:
-                #     self.wavelength_text1.set(f'{self.wave_value} nm')
-                #     self.list_of_act_diodes[1].set_wavelength(self.wave_value)
-                # elif num == 2:
-                #     self.wavelength_text2.set(f'{self.wave_value} nm')
-                #     self.list_of_act_diodes[2].set_wavelength(self.wave_value)
-                # elif num == 3:
-                #     self.wavelength_text3.set(f'{self.wave_value} nm')
-                #     self.list_of_act_diodes[3].set_wavelength(self.wave_value)
+
             else:
                 messagebox.showwarning(title='Unsupported wavelength',
                     message='Inserted wavelength is outside of measurable interval.')
 
-        #     print(self.wave_value)
             self.wave_value = 0
             new_wave.destroy()
 
@@ -1623,14 +1663,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         btn_auto.place(relx=0, rely=0.68)
         
         def man_change_range(rang, num):
-            # if not self.autodetect:
             self.list_of_act_diodes[num].set_amplification(rang)
             self.amp_levels[num].set(f'amp level {rang}')
             new_range.destroy()
-
-            # else:
-            #     messagebox.showwarning(title='Auto-detection enabled', 
-            #         message='Auto-detection of photodiodes is enabled. In order to choose your own amplification range, disable it in the settings.')
 
         def set_auto_amp(num):
             self.list_of_act_diodes[num].toggle_true_auto_range()
@@ -1644,11 +1679,11 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
     def update_widgets(self):
         """Updates voltages and rewrites them on screen."""
-        # start = time.time()
-        # print("up")
+
         if self.autodetect:            
             self.refresh()
 
+        
         self.diodecount = len(self.list_of_act_diodes)
 
         start = time.time()
@@ -1657,27 +1692,17 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.reading_pow = False
         else:
             self.reading_pow = True
-            for i in self.list_of_act_diodes:
-                # start = time.time()
-                i.read_data_adc()  # reads voltages on active photodiodes
-                # stop = time.time()
-                # print(f'{stop - start}')
 
-        stop = time.time()
-        print(f'{stop - start}')
+            for i in self.list_of_act_diodes:
+                i.read_data_adc()  # reads voltages on active photodiodes
 
         if not self.diodecount == 0:
-            # print("updating widgets")
-            print(self.diodecount)
 
             if self.reading_pow:
-
                 string_tw = ''
                 value_arr = []
 
                 for i in range(self.diodecount):  # updates all variables on displayed frames
-                    # start = time.time()
-                    # print(i)
                     value = f'{(round(self.list_of_act_diodes[i].get_power(), 5)):.2f}'[:7]
                     value_arr.append(value)
                     self.unit_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_power_unit()}'
@@ -1687,13 +1712,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                     self.amp_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_exposure()}'
                     self.amp_buttons[i]['text'] = self.amp_levels[i].get()               
                     self.factor_buttons[i]['text'] = self.list_of_act_diodes[i].get_multiply_factor_string()
-                   
-                    # stop = time.time()
-                    # print(f'{stop - start}')
-
-                # stop = time.time()
-                # print(f'{stop - start}')
-                # print("updating widgets: success")
 
                 if self.log_sys:
 
@@ -1723,20 +1741,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                     string_tw = self.diode0_log + self.diode1_log + self.diode2_log + self.diode3_log + '\n'
                     self.write_to_file(string_tw)
                     self.reset_values()
+        
+        self.after(int(self.delay_time * 1000), self.update_widgets)
 
-        # stop = time.time()
-        # print(f'{stop - start}')
-        """
-        Changing refresh rate of GUI.
-        """
-
-        if self.changed_freq:
-            self.changed_freq = False
-            self.T.cancel()
-            # self.refresh()
-            self.T = updateTimer(self.delay_time, self.update_widgets)  # calls a timer to update values on the GUI
-            self.T.start()
-            
         return
 
 ###### 
@@ -1779,9 +1786,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.menu.add_cascade(label='Exit', menu=exitMenu)
         
         if self.diodecount == 0:
-            # print("zero photodiodes")
-            # messagebox.showwarning(title='No diodes connected', message='There are no photodiodes connected to the powermeter.')
-            # print("displayed warning, refreshing")
             self.refresh()
         
         self.diode_banners = []
@@ -1795,7 +1799,6 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.factor_buttons = []
 
         if self.diodecount > 0:
-            # print("creating widgets")
 
             self.diode_banner = tk.Frame(self, 
                 width=f'{self.wid_width}m', 
@@ -2211,8 +2214,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.diode_banner_3.place(relx=4*frame_dist + 3*frame_width, 
                 y=10, 
                 relwidth=frame_width,
-                relheight=0.95)  
-        # print("widgets created")
+                relheight=0.95) 
 
 ###### 
 ######
@@ -2233,46 +2235,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.configure(bg=space_blue)
         self.config(cursor="none")
 
+
         self.create_widgets()  # creates frames with all widgets in them
-
-        self.T = updateTimer(self.delay_time, self.update_widgets)  # calls a timer to update values on the GUI
-        self.T.start()
-
-###### 
-######
-######
-###### TIMER FOR RECURRING EVENTS
-
-class updateTimer():
-    """Creates a new Thread for timing operation. 
-
-    t = time in [s] - defines refresh rate
-    hFunction = function it calls repeatedly every t [s]
-
-    start() -> starts new thread and timer
-    cancel() -> stops a running thread and timer
-    """
-
-    def __init__(self, t, hFunction):
-        self.t = t
-        self.hFunction = hFunction
-        self.thread = Timer(self.t, self.handle_function)
-    
-    def update_freq(self, t):
-        self.t = t
-        self.handle_function()
-
-    def handle_function(self):
-        self.hFunction()
-        self.thread = Timer(self.t, self.handle_function)
-        self.thread.start()
-
-    
-    def start(self):
-        self.thread.start()
-
-    def cancel(self):
-        self.thread.cancel()
+        self.after(int(self.delay_time*1000), self.update_widgets)
 
 ###### 
 ######
