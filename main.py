@@ -1,6 +1,5 @@
 #!/usr/local/lib/  python3
 
-from email import message
 from pigpio import *
 from Diode import Diode
 import tkinter as tk
@@ -8,7 +7,6 @@ import tkinter.messagebox as messagebox
 import datetime
 import os
 import yaml
-import threading
 from time import sleep as sleep
 
 if os.environ.get('DISPLAY','') == '':
@@ -41,13 +39,11 @@ dark_blue = '#767b91'
 light_blue = '#c7ccdb'
 white_ish = '#e1e5ee'
 
-    # monochrome/grayscale verion
-
+# OVERWRITE to monochrome/grayscale verion
 black = space_blue = dark_blue = '#13070C'
 teal = orange = red = '#000000'
 dark_gray = light_gray = '#C2C2C2'
 light_blue = white_ish = '#DBDBDB'  # '#FFFFFF'
-
 # END
 
 # START

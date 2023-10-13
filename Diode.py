@@ -163,24 +163,25 @@ class Diode:
     def choose_source(self, source):
         """Writes appropriate value to the adc_sel (GPIO17) pin in order to choose between diode selection or."""
         # source = True
+        
         if source:
             Diode.rpi.write(Diode.adc_sel_pin, True)
             self.read_power = False
+        
         else:
             Diode.rpi.write(Diode.adc_sel_pin, False)
             self.read_power = True
+        
         return
 
     def is_active(self):
         """Checks if a photodiode is connected. Updates name."""
-        # start = time.time()
 
         activity = False
         self.read_voltage_add()
         self.choose_source(True)
 
-        if self.voltage_address < 2.0 and self.voltage_address >= 0.0:
-            # print(f'True: {self.adc_add} - ', self.voltage_address)                    
+        if self.voltage_address < 2.0 and self.voltage_address >= 0.0:                  
             self.active = True
 
             if not self.wasactive:                
@@ -196,15 +197,11 @@ class Diode:
             activity = True
         
         else:
-            # print('False: ', self.voltage_address)
             self.multiply_factor = 1
             self.multiply_factor_string = 'multiply'
             self.active = False
             self.wasactive = self.active
             activity = False
-
-        # stop = time.time()
-        # print(f'{stop - start}')
 
         return activity
 
@@ -271,25 +268,17 @@ class Diode:
             self.choose_source(True)
             Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_OUT_REG, 0x00)
             time.sleep(Diode.delay)
-
         
             (c, data) = Diode.rpi.i2c_read_device(self.h, 2)        
-            self.voltage_address = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))
-            # time.sleep(0.005)
-            
+            self.voltage_address = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))     
 
             if (self.voltage_address - volt) <= (self.voltage_address*0.05):
                 break
-        # print('reading voltage on ', self.adc_add, ": ", self.voltage_address, (int.from_bytes(data, 'big', signed=True)))
 
         return 
 
     def read_data_adc(self):
         """Reads data through I2C protocol from A/D Converter with address given to the constructor."""
-        # start = time.time()
-
-        # stop = time.time()
-        # print(f'{stop - start}')
         
         # This part defines in which wavelength section photodiode is measuring the power of light.
         
@@ -304,9 +293,7 @@ class Diode:
                 true_section = i
                 break
             else:
-                true_section = ''
-
-        
+                true_section = ''        
 
         if self.is_active():
             self.choose_source(False)
@@ -314,13 +301,10 @@ class Diode:
             time.sleep(Diode.delay)
 
             while True:
-                # start = time.time()
 
                 (c, data) = Diode.rpi.i2c_read_device(self.h, 2)        
                 self.power_read = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))
                 
-                
-                # print('reading power')
                 if self.power_read > Diode.tresh_up:
                     ex = self.change_amp(False)
                     self.underexposed = False
@@ -328,13 +312,14 @@ class Diode:
                     ex = self.change_amp(True)
                     self.overexposed = False
                 elif self.power_read < Diode.tresh_up and self.power_read > Diode.tresh_down:
-                    # if photodiode is not under or overexposed calculate true power in W by approximating the inverse of responsitivity curve
-                    # and multiply it by current -> get W.
+                        # if photodiode is not under or overexposed calculate true power in W by approximating the inverse of responsitivity curve
+                        # and multiply it by current -> get W.
                     volt = self.power_read
                     current = volt / Diode.amp_res[self.amp_bit_dg408]
-                    # print('current: ', current)
+
                     if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'exp':
                         self.power_read = (current * (self.calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(self.calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength)))
+                    
                     if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'poly':
                         poly_power = len(self.calibration['diodes'][f'{self.name}'][true_section]['eq'])
                         self.power_read = 0
@@ -368,13 +353,7 @@ class Diode:
                     self.overexposed = False
                     break
 
-                # stop = time.time()
-                # print(f'{stop - start}')
-
                 if ex == 1:
-                    return
-
-        # stop = time.time()
-        # print(f'{stop - start}')      
+                    return    
           
         return
