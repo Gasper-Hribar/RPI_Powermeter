@@ -40,6 +40,14 @@ space_blue = '#0d0f16'
 dark_blue = '#767b91'
 light_blue = '#c7ccdb'
 white_ish = '#e1e5ee'
+
+    # monochrome/grayscale verion
+
+black = space_blue = dark_blue = '#13070C'
+teal = orange = red = '#000000'
+dark_gray = light_gray = '#C2C2C2'
+light_blue = white_ish = '#DBDBDB'  # '#FFFFFF'
+
 # END
 
 # START
@@ -1703,6 +1711,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 value_arr = []
 
                 for i in range(self.diodecount):  # updates all variables on displayed frames
+                    self.title_labels[i]['text'] = f"P{self.active_diodes[i]}: {self.list_of_act_diodes[i].get_name()}"
                     value = f'{(round(self.list_of_act_diodes[i].get_power(), 5)):.2f}'[:7]
                     value_arr.append(value)
                     self.unit_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_power_unit()}'

@@ -13,6 +13,12 @@
 
 calibrated wavelengths: [635, 940, 976, 1030]
 
+diode ports:  # Specific corrections for each diode port according to it's ADC I2C address
+  '0x48': 1
+  '0x49': 1
+  '0x4a': 1
+  '0x4b': 1
+
 filters:
   nd10a:
     '635': 10.1
