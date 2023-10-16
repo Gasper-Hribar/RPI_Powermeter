@@ -745,7 +745,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
             btn_OK = tk.Button(new_mult_nd, 
                 bg=space_blue,
-                fg=red,
+                fg=white_ish,
                 font=settingsfont,
                 justify='center',
                 text='ok',
@@ -909,7 +909,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
             btn_OK = tk.Button(new_mult, 
                 bg=space_blue,
-                fg=red,
+                fg=white_ish,
                 font=ampfont,
                 justify='center',
                 text='ok',
@@ -1401,7 +1401,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             relief='flat')
 
         new_wave.title('.')
-        new_wave.geometry(f'225x225+290+130')
+        new_wave.geometry(f'305x235+250+125')
 
         wavelength = tk.Label(new_wave,
             font=outputminifont,
@@ -1409,7 +1409,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             bg=light_gray, 
             justify='center',
             height=2,
-            width=20,
+            width=21,
             text='')
 
         btn_0 = tk.Button(new_wave, 
@@ -1514,26 +1514,75 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
         btn_OK = tk.Button(new_wave, 
             bg=space_blue,
-            fg=red,
+            fg=white_ish,
             font=settingsfont,
             justify='center',
             text='ok',
-            width=18,
+            width=20,
             height=2,
             command=lambda: confirm_value(num))
+        
+        btn_635 = tk.Button(new_wave, 
+            bg=space_blue,
+            fg=white_ish,
+            font=settingsfont,
+            justify='center',
+            text='635',
+            width=4,
+            height=2,
+            command=lambda: set_value(635, num))
+        
+        btn_940 = tk.Button(new_wave, 
+            bg=space_blue,
+            fg=white_ish,
+            font=settingsfont,
+            justify='center',
+            text='940',
+            width=4,
+            height=2,
+            command=lambda: set_value(940, num))
 
-        wavelength.place(relx=0.5, rely=0.1, anchor='center')
-        btn_0.place(relx=0, rely=0.22)
-        btn_1.place(relx=0.2, rely=0.22)
-        btn_2.place(relx=0.4, rely=0.22)
-        btn_3.place(relx=0.6, rely=0.22)
-        btn_4.place(relx=0.8, rely=0.22)
-        btn_5.place(relx=0, rely=0.48)
-        btn_6.place(relx=0.2, rely=0.48)
-        btn_7.place(relx=0.4, rely=0.48)
-        btn_8.place(relx=0.6, rely=0.48)
-        btn_9.place(relx=0.8, rely=0.48)
-        btn_OK.place(relx=0, rely=0.75)
+        btn_976 = tk.Button(new_wave, 
+            bg=space_blue,
+            fg=white_ish,
+            font=settingsfont,
+            justify='center',
+            text='976',
+            width=4,
+            height=2,
+            command=lambda: set_value(976, num))
+        
+        btn_1030 = tk.Button(new_wave, 
+            bg=space_blue,
+            fg=white_ish,
+            font=settingsfont,
+            justify='center',
+            text='1030',
+            width=4,
+            height=2,
+            command=lambda: set_value(1030, num))
+
+        first_row = 0.
+        second_row = 0.25
+        third_row = 0.5
+        fourth_row = 0.75
+
+        wavelength.place(relx=0.379, rely=0.13, anchor='center')
+        btn_0.place(relx=0, rely=second_row)
+        btn_1.place(relx=0.152, rely=second_row)
+        btn_2.place(relx=0.304, rely=second_row)
+        btn_3.place(relx=0.456, rely=second_row)
+        btn_4.place(relx=0.608, rely=second_row)
+        btn_5.place(relx=0, rely=third_row)
+        btn_6.place(relx=0.152, rely=third_row)
+        btn_7.place(relx=0.304, rely=third_row)
+        btn_8.place(relx=0.456, rely=third_row)
+        btn_9.place(relx=0.608, rely=third_row)
+        btn_OK.place(relx=0, rely=fourth_row)
+        btn_635.place(relx=0.76, rely=first_row)
+        btn_940.place(relx=0.76, rely=second_row)
+        btn_976.place(relx=0.76, rely=third_row)
+        btn_1030.place(relx=0.76, rely=fourth_row)
 
         def confirm_value(num):
             if self.wave_value > 400 and self.wave_value <= 1100:
@@ -1550,6 +1599,11 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         def add_to_value(val):
             self.wave_value = (10 * self.wave_value) + val
             wavelength['text'] = self.wave_value
+
+        def set_value(val, num):
+            self.wave_value = val
+            wavelength['text'] = self.wave_value
+            confirm_value(num)
 
 ###### 
 ######
@@ -1648,7 +1702,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
         btn_auto = tk.Button(new_range, 
             bg=space_blue,
-            fg=red,
+            fg=white_ish,
             font=settingsfont,
             justify='center',
             text='auto',
@@ -1784,10 +1838,10 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
         settsMenu = tk.Menu(self.menu)
         exitMenu = tk.Menu(self.menu)
-        settsMenu.add_command(label='Settings', command=self.settings_page, font=menufont)
+        settsMenu.add_command(label='Settings', command=self.settings_page, font=menufont, activebackground=space_blue, activeforeground=white_ish)
         # settsMenu.add_command(label='Refresh', command=self.refresh, font=menufont)        
         self.menu.add_cascade(label='Settings', menu=settsMenu)
-        exitMenu.add_command(label='Exit', command=self.close_app, background=red, font=menufont, activebackground=red)
+        exitMenu.add_command(label='Exit', command=self.close_app, background=red, font=menufont, activebackground=red, activeforeground=white_ish)
         self.menu.add_cascade(label='Exit', menu=exitMenu)
         
         if self.diodecount == 0:
