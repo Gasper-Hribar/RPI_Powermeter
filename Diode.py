@@ -34,8 +34,8 @@ class Diode:
     diodeCount = 0
     not_set = True
     int_ref_adc = 2.048
-    tresh_up = 1.8
-    tresh_down = 0.2
+    tresh_up = 1.65
+    tresh_down = 0.05
     amp_res = [1000, 3000, 10000, 30000, 100000, 300000, 1000000, 3000000]
     units = ['W', 'mW', 'uW', 'nW', 'pW']
     delay = 0.012
