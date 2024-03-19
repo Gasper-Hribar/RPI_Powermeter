@@ -23,3 +23,9 @@ whenever the powermeter is turned ON.
 
 3. Additional connectivity:
   - Adding a connectivity option between the Raspberry Pi and a PC. One possibility could be via MQTT, but it would require some sort of "global" MQTT broker. 
+
+## TO-DO
+
+- Fix the bug of auto range, when the thing jumps uncontrolably and does not settle.
+- Fix the thresholds. On the borders the range should be full in one way.
+- Find a new way to search for the optimal range.

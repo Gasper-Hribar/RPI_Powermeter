@@ -1762,7 +1762,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
                 for i in range(self.diodecount):  # updates all variables on displayed frames
                     self.title_labels[i]['text'] = f"P{self.active_diodes[i]}: {self.list_of_act_diodes[i].get_name()}"
-                    value = f'{(round(self.list_of_act_diodes[i].get_power(), 5)):.2f}'[:7]
+                    value = f'{(round(self.list_of_act_diodes[i].get_power(), 5))}'[:4]
                     value_arr.append(value)
                     self.unit_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_power_unit()}'
                     self.output_labels[i]['text'] = value

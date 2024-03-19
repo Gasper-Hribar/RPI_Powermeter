@@ -38,7 +38,7 @@ class Diode:
     tresh_down = 0.05
     amp_res = [1000, 3000, 10000, 30000, 100000, 300000, 1000000, 3000000]
     units = ['W', 'mW', 'uW', 'nW', 'pW']
-    delay = 0.012
+    delay = 0.050
 
     file = open('calibration.yaml')
     caldata = yaml.load(file, Loader=yaml.FullLoader)
@@ -327,7 +327,7 @@ class Diode:
                         if self.wavelength in Diode.specific_wavelengths:
                             self.power_read = self.calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'][f'{int(self.amp_bit_dg408)}'] * self.power_read
 
-                        self.power_read = self.multiply_factor * self.power_read * self.calibration['diode ports'][f'{hex(self.adc_add)}']
+                        self.power_read = 2 * (self.multiply_factor * self.power_read * self.calibration['diode ports'][f'{hex(self.adc_add)}'])
 
                         if self.multiply_factor > 0:
                             ratio_pow = 1 / self.power_read
