@@ -11,3 +11,15 @@ and error is raised if no drive is connected. Reset to default settings is possi
 
 Calibration file contains correction factors for each photodiode at different wavelengths of light (650 nm, 976 nm, 1030 nm and 1050 nm) and multiple filters (from OD 0,3 up to OD 4). Last set refresh rate is saved in last_settings file and is used
 whenever the powermeter is turned ON.
+
+# Development ideas, not yet implemented
+
+1. Service mode:
+  - Gives the user an option to choose between normal and service mode. Service mode displays calculated power as well as read voltages from the ADC directly without the conversion. Auto range is disabled by default.
+
+2. Statistics:
+  - Exploring the possibility to draw a graph of the measurements to the GUI for better representation of the measured data.
+  - Averaging measurement and adding a setting to choose how many consecutive measurements to include in one reading. Then displaying the average of the measurements.
+
+3. Additional connectivity:
+  - Adding a connectivity option between the Raspberry Pi and a PC. One possibility could be via MQTT, but it would require some sort of "global" MQTT broker. 
