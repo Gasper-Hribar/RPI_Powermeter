@@ -9,9 +9,18 @@ import os
 import yaml
 from time import sleep as sleep
 import updateService
+from os.path import dirname, abspath
+
+# START
+# global variables
 
 if os.environ.get('DISPLAY','') == '':
     os.environ.__setitem__('DISPLAY', ':0.0')  # sets display environment variable to 0.0
+
+file_directory = dirname(abspath(__file__))
+os.chdir(file_directory)
+# END
+
 
 # START
 # definition of fonts
