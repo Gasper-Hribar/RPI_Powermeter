@@ -34,8 +34,8 @@ class Diode:
     diodeCount = 0
     not_set = True
     int_ref_adc = 2.048
-    tresh_up = 1.65
-    tresh_down = 0.05
+    tresh_up = 1.8
+    tresh_down = 0.15
     amp_res = [1000, 3000, 10000, 30000, 100000, 300000, 1000000, 3000000]
     units = ['W', 'mW', 'uW', 'nW', 'pW']
     delay = 0.050
@@ -140,7 +140,7 @@ class Diode:
         """Manually sets amplification. Disables auto range function."""
         self.amp_bit_dg408 = amp
         self.auto_range = False
-        Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
+        Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
 
     def set_wavelength(self, wave_val):
         """Sets wavelength."""
@@ -209,12 +209,12 @@ class Diode:
             Diode.rpi.set_mode(Diode.adc_sel_pin, OUTPUT)
             Diode.rpi.write(Diode.adc_sel_pin, False)
 
-            self.h = Diode.rpi.i2c_open(Diode.BUS, self.adc_add)
-            self.h1 = Diode.rpi.i2c_open(Diode.BUS, self.io_add)   
-            if self.h >= 0:         
-                Diode.rpi.i2c_write_i2c_block_data(self.h, Diode.D0_ADC_CONF_REG, [0x84, 0xC3])
-                Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_CONF_REG, 0x00)  
-                Diode.rpi.i2c_write_byte(self.h, Diode.D0_ADC_CONV_REG)
+            self.hiic1 = Diode.rpi.i2c_open(Diode.BUS, self.adc_add)
+            self.hiic2 = Diode.rpi.i2c_open(Diode.BUS, self.io_add)   
+            if self.hiic1 >= 0:         
+                Diode.rpi.i2c_write_i2c_block_data(self.hiic1, Diode.D0_ADC_CONF_REG, [0x84, 0xC3])
+                Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_CONF_REG, 0x00)  
+                Diode.rpi.i2c_write_byte(self.hiic1, Diode.D0_ADC_CONV_REG)
 
             self.not_set = False
 
@@ -230,7 +230,7 @@ class Diode:
                     self.amp_bit_dg408 = 0x07
                     self.underexposed = True
                     self.readcount += 1
-                Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
+                # Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
         
             else:        
                 if self.amp_bit_dg408 > 0x00:
@@ -239,7 +239,7 @@ class Diode:
                     self.amp_bit_dg408 = 0x00
                     self.overexposed = True
                     self.readcount += 1
-                Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
+                # Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
         else:
             self.readcount +=1
 
@@ -247,10 +247,10 @@ class Diode:
             self.readcount = 0
             if fact:
                 self.underexposed = True
-                self.power_read = 0.0
+                self.power_read = 0.000
             elif not fact:
                 self.overexposed = True
-                self.power_read = 10
+                self.power_read = 10.00
             
             return 1
     
@@ -264,10 +264,9 @@ class Diode:
             volt = self.voltage_address
 
             self.choose_source(True)
-            # Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_OUT_REG, 0x00)
             time.sleep(Diode.delay)
         
-            (c, data) = Diode.rpi.i2c_read_device(self.h, 2)        
+            (c, data) = Diode.rpi.i2c_read_device(self.hiic1, 2)        
             self.voltage_address = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))     
 
             if (self.voltage_address - volt) <= (self.voltage_address*0.05):
@@ -295,20 +294,26 @@ class Diode:
 
             if self.is_active():
                 self.choose_source(False)
-                Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
-                time.sleep(Diode.delay)
+                # Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
+                # time.sleep(Diode.delay)
 
                 while True:
 
-                    (c, data) = Diode.rpi.i2c_read_device(self.h, 2)        
+                    Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
+                    time.sleep(Diode.delay)
+
+                    (c, data) = Diode.rpi.i2c_read_device(self.hiic1, 2)        
                     self.power_read = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))
                     
+                    """ AUTO RANGE """
                     if self.power_read > Diode.tresh_up:
                         ex = self.change_amp(False)
                         self.underexposed = False
+
                     elif self.power_read < Diode.tresh_down:
                         ex = self.change_amp(True)
                         self.overexposed = False
+
                     elif self.power_read < Diode.tresh_up and self.power_read > Diode.tresh_down:
                             # if photodiode is not under or overexposed calculate true power in W by approximating the inverse of responsitivity curve
                             # and multiply it by current -> get W.
