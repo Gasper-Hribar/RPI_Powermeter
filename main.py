@@ -1235,6 +1235,39 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             command=lambda: confirm_ref_rate())
         set_ref_rate_btn.place(relx=0.815, rely=0.48, anchor='center')
 
+        """ SERVICE MODE ENABLE """
+
+        en_service_mode = tk.Message(setts_page,  # toggle auto detection message
+            text="Service mode: ", 
+            width=120,
+            bg=light_gray,
+            fg=black,
+            justify='center')
+        en_service_mode.place(relx=0.2, rely=0.74, anchor='center')
+
+        enable_SM_btn = tk.Button(setts_page,  # enable auto detection button
+            bg=light_gray,
+            fg=black,
+            font=settingsfont,
+            justify='center',
+            text='enable',
+            width=8,
+            height=1,
+            command=lambda: toggle_servicemode(True))
+        enable_SM_btn.place(relx=0.5, rely=0.12, anchor='center')
+
+        disable_SM_btn = tk.Button(setts_page,  # disable auto detection button
+            bg=light_gray,
+            fg=black,
+            font=settingsfont,
+            justify='center',
+            text='disable',
+            width=8,
+            height=1,
+            command=lambda: toggle_servicemode(False))
+        disable_SM_btn.place(relx=0.75, rely=0.12, anchor='center')
+
+
 
         """MISCELLANEOUS BUTTONS"""
 
@@ -1297,6 +1330,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         def disable_auto():
             self.autodetect = False
             setts_page.destroy()
+
+        def toggle_servicemode(mode):
+            self.active_diodes[0].set_serviceMode(mode)
         
         def increase_ref_rate():
             with open("last_settings.yaml", "r") as file:
