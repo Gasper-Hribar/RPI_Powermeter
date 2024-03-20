@@ -1243,7 +1243,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             bg=light_gray,
             fg=black,
             justify='center')
-        en_service_mode.place(relx=0.2, rely=0.74, anchor='center')
+        en_service_mode.place(relx=0.2, rely=0.7, anchor='center')
 
         enable_SM_btn = tk.Button(setts_page,  # enable auto detection button
             bg=light_gray,
@@ -1254,7 +1254,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             width=8,
             height=1,
             command=lambda: toggle_servicemode(True))
-        enable_SM_btn.place(relx=0.5, rely=0.75, anchor='center')
+        enable_SM_btn.place(relx=0.5, rely=0.7, anchor='center')
 
         disable_SM_btn = tk.Button(setts_page,  # disable auto detection button
             bg=light_gray,
@@ -1265,7 +1265,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             width=8,
             height=1,
             command=lambda: toggle_servicemode(False))
-        disable_SM_btn.place(relx=0.75, rely=0.75, anchor='center')
+        disable_SM_btn.place(relx=0.75, rely=0.7, anchor='center')
 
 
 
