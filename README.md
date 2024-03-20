@@ -26,6 +26,6 @@ whenever the powermeter is turned ON.
 
 ## TO-DO
 
-- Fix the bug of auto range, when the thing jumps uncontrolably and does not settle.
+- Fix the bug of auto range, when the thing jumps uncontrolably and does not settle. This is especially troubling on the boot of the Raspberry.
 - Fix the thresholds. On the borders the range should be full in one way.
 - Find a new way to search for the optimal range.
