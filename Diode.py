@@ -264,7 +264,7 @@ class Diode:
             volt = self.voltage_address
 
             self.choose_source(True)
-            Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_OUT_REG, 0x00)
+            # Diode.rpi.i2c_write_byte_data(self.h1, Diode.D0_TCA_OUT_REG, 0x00)
             time.sleep(Diode.delay)
         
             (c, data) = Diode.rpi.i2c_read_device(self.h, 2)        

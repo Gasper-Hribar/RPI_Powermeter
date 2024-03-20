@@ -11,3 +11,5 @@ and error is raised if no drive is connected. Reset to default settings is possi
 
 Calibration file contains correction factors for each photodiode at different wavelengths of light (650 nm, 976 nm, 1030 nm and 1050 nm) and multiple filters (from OD 0,3 up to OD 4). Last set refresh rate is saved in last_settings file and is used
 whenever the powermeter is turned ON.
+
+sudo nano /etc/xdg/autostart/display.desktop
