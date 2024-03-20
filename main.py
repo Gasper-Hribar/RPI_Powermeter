@@ -1332,7 +1332,8 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             setts_page.destroy()
 
         def toggle_servicemode(mode):
-            self.active_diodes[0].set_serviceMode(mode)
+            for diode in self.all_diodes:
+                diode.set_serviceMode(mode)
         
         def increase_ref_rate():
             with open("last_settings.yaml", "r") as file:

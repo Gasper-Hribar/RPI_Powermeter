@@ -34,8 +34,8 @@ class Diode:
     diodeCount = 0
     not_set = True
     int_ref_adc = 2.048
-    tresh_up = 1.8
-    tresh_down = 0.15
+    thresh_up = 1.8
+    thresh_down = 0.5
     amp_res = [1000, 3000, 10000, 30000, 100000, 300000, 1000000, 3000000]
     units = ['W', 'mW', 'uW', 'nW', 'pW']
     delay = 0.050
@@ -247,7 +247,7 @@ class Diode:
         else:
             self.readcount +=1
 
-        if self.readcount == 5:  # return 1 if it cycle itself in a loop -> executes when for 5 consecutive calls of change_amp amp stays the same
+        if self.readcount == 5:  # return 1 if it cycles itself in a loop -> executes when for 5 consecutive calls of change_amp amp stays the same
             self.readcount = 0
             if fact:
                 self.underexposed = True
@@ -310,15 +310,25 @@ class Diode:
                     self.power_read = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))
                     
                     """ AUTO RANGE """
-                    if self.power_read > Diode.tresh_up:
+                    if self.amp_bit_dg408 == 0x07:
+                        lower_limit = 0
+                    else:
+                        lower_limit = Diode.thresh_down
+
+                    if self.amp_bit_dg408 == 0x00:
+                        upper_limit = 2.04
+                    else:
+                        upper_limit = Diode.thresh_up
+
+                    if self.power_read > upper_limit:
                         ex = self.change_amp(False)
                         self.underexposed = False
 
-                    elif self.power_read < Diode.tresh_down:
+                    elif self.power_read < lower_limit:
                         ex = self.change_amp(True)
                         self.overexposed = False
 
-                    elif self.power_read < Diode.tresh_up and self.power_read > Diode.tresh_down:
+                    elif self.power_read <= upper_limit and self.power_read >= lower_limit:
                             # if photodiode is not under or overexposed calculate true power in W by approximating the inverse of responsitivity curve
                             # and multiply it by current -> get W.
                         
