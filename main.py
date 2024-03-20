@@ -8,6 +8,7 @@ import datetime
 import os
 import yaml
 from time import sleep as sleep
+import updateService
 
 if os.environ.get('DISPLAY','') == '':
     os.environ.__setitem__('DISPLAY', ':0.0')  # sets display environment variable to 0.0
@@ -45,6 +46,18 @@ teal = orange = red = '#000000'
 dark_gray = light_gray = '#C2C2C2'
 light_blue = white_ish = '#DBDBDB'  # '#FFFFFF'
 # END
+
+
+# START
+# restart the app on update
+def restart_program():
+    """
+    Restarts the current program.
+    Note: this function does not return. Any cleanup action (like saving data) must be done before calling this function.
+    """
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
+# END 
 
 # START
 # main GUI functionality
@@ -2283,6 +2296,12 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
     def __init__(self):
         tk.Tk.__init__(self)  # self = root window
 
+        if updateService.is_branch_behind():
+            update = messagebox.askyesno(title="New version available", message="New version od this app is available. Do you want to update now?")
+            if update:
+                updateService.git_pull()
+                restart_program()
+                
         self.set_default_values()
 
         #GUI
