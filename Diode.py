@@ -2,6 +2,7 @@ from pigpio import *
 import time
 import yaml
 import numpy as np
+import time
 
 class Diode:
     """Diode class.
@@ -268,7 +269,7 @@ class Diode:
             volt = self.voltage_address
 
             self.choose_source(True)
-            time.sleep(Diode.delay)
+            time.sleep(0.01)
         
             (c, data) = Diode.rpi.i2c_read_device(self.hiic1, 2)        
             self.voltage_address = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))     
@@ -311,7 +312,7 @@ class Diode:
                     
                     """ AUTO RANGE """
                     if self.amp_bit_dg408 == 0x07:
-                        lower_limit = 0
+                        lower_limit = 0.01
                     else:
                         lower_limit = Diode.thresh_down
 
