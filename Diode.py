@@ -146,6 +146,7 @@ class Diode:
         self.amp_bit_dg408 = amp
         self.auto_range = False
         Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
+        time.sleep(Diode.delay)
 
     def set_wavelength(self, wave_val):
         """Sets wavelength."""
@@ -235,7 +236,6 @@ class Diode:
                     self.amp_bit_dg408 = 0x07
                     self.underexposed = True
                     self.readcount += 1
-                # Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
         
             else:        
                 if self.amp_bit_dg408 > 0x00:
@@ -244,7 +244,9 @@ class Diode:
                     self.amp_bit_dg408 = 0x00
                     self.overexposed = True
                     self.readcount += 1
-                # Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
+            Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
+            time.sleep(Diode.delay)
+
         else:
             self.readcount +=1
 
@@ -299,13 +301,8 @@ class Diode:
 
             if self.is_active():
                 self.choose_source(False)
-                # Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
-                # time.sleep(Diode.delay)
 
                 while True:
-
-                    Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
-                    time.sleep(Diode.delay)
 
                     (c, data) = Diode.rpi.i2c_read_device(self.hiic1, 2)        
                     self.power_read = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))

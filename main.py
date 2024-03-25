@@ -219,6 +219,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
         # empty usb path -> default = no usb drive connected
         self.usb_path = ''
+
+        # service mode defaults to False
+        self.service_mode = False
         
         # declaration of Diodes and setting I2C communication 
         self.d0 = Diode(self.adc0, self.tca0)
@@ -1332,6 +1335,8 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             setts_page.destroy()
 
         def toggle_servicemode(mode):
+            self.service_mode = mode
+            
             for diode in self.all_diodes:
                 diode.set_serviceMode(mode)
         
@@ -1815,6 +1820,25 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
         if not self.diodecount == 0:
 
+            """Untested code."""
+            if self.service_mode:
+                try:
+                    self.amp_num.place(relx=0.5, rely=0.90, anchor='center')
+                    self.amp_num1.place(relx=0.5, rely=0.90, anchor='center')
+                    self.amp_num2.place(relx=0.5, rely=0.90, anchor='center')
+                    self.amp_num3.place(relx=0.5, rely=0.90, anchor='center')
+                except:
+                    pass
+            else:
+                try:
+                    self.amp_num.destroy()
+                    self.amp_num1.destroy()
+                    self.amp_num2.destroy()
+                    self.amp_num3.destroy()
+                except:
+                    pass
+            """ ^^ """
+
             if self.reading_pow:
                 string_tw = ''
                 value_arr = []
@@ -2015,7 +2039,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.factor_button.place(relx=0.5, rely=0.6, anchor='center')
             self.wave_text.place(relx=0.5, rely=0.7, anchor='center')
             self.ampl.place(relx=0.5, rely=0.8, anchor='center')
-            self.amp_num.place(relx=0.5, rely=0.90, anchor='center')
+            # self.amp_num.place(relx=0.5, rely=0.90, anchor='center')
             self.diode_banner.place(relx=frame_dist, 
                 y=10, 
                 relwidth=frame_width, 
@@ -2119,7 +2143,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.factor_button1.place(relx=0.5, rely=0.6, anchor='center')
             self.wave_text1.place(relx=0.5, rely=0.7, anchor='center')
             self.ampl1.place(relx=0.5, rely=0.8, anchor='center')
-            self.amp_num1.place(relx=0.5, rely=0.90, anchor='center')
+            # self.amp_num1.place(relx=0.5, rely=0.90, anchor='center')
             self.diode_banner_1.place(relx=2*frame_dist + frame_width, 
                 y=10, 
                 relwidth=frame_width, 
@@ -2223,7 +2247,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.factor_button2.place(relx=0.5, rely=0.6, anchor='center')
             self.wave_text2.place(relx=0.5, rely=0.7, anchor='center')
             self.ampl2.place(relx=0.5, rely=0.8, anchor='center')
-            self.amp_num2.place(relx=0.5, rely=0.90, anchor='center')
+            # self.amp_num2.place(relx=0.5, rely=0.90, anchor='center')
             self.diode_banner_2.place(relx=3*frame_dist + 2*frame_width, 
                 y=10, 
                 relwidth=frame_width, 
@@ -2328,7 +2352,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.factor_button3.place(relx=0.5, rely=0.6, anchor='center')
             self.wave_text3.place(relx=0.5, rely=0.7, anchor='center')
             self.ampl3.place(relx=0.5, rely=0.8, anchor='center')
-            self.amp_num3.place(relx=0.5, rely=0.90, anchor='center')
+            # self.amp_num3.place(relx=0.5, rely=0.90, anchor='center')
             self.diode_banner_3.place(relx=4*frame_dist + 3*frame_width, 
                 y=10, 
                 relwidth=frame_width,
