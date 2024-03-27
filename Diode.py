@@ -353,7 +353,9 @@ class Diode:
                             if self.wavelength in Diode.specific_wavelengths:
                                 self.power_read = self.calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'][f'{int(self.amp_bit_dg408)}'] * self.power_read
 
-                            self.power_read = 2 * (self.multiply_factor * self.power_read * self.calibration['diode ports'][f'{hex(self.adc_add)}']) # * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}'])
+                            self.power_read = self.power_read * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}']
+
+                            self.power_read = 2 * self.multiply_factor * self.power_read * self.calibration['diode ports'][f'{hex(self.adc_add)}']
 
                             if self.multiply_factor > 0:
                                 ratio_pow = 1 / self.power_read
