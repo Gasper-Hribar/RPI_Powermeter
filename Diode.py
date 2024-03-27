@@ -162,7 +162,7 @@ class Diode:
         elif self.underexposed:
             return 'UNDEREXPOSED'
         
-        return ''
+        return False
 
     def choose_source(self, source):
         """Writes appropriate value to the adc_sel (GPIO17) pin in order to choose between diode selection or."""

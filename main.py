@@ -1865,7 +1865,10 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                     self.output_labels[i]['text'] = f'{value} {self.list_of_act_diodes[i].get_power_unit()}'
                     self.wavelength_buttons[i]['text'] = self.wavelength_texts[i].get()
                     self.amp_nums[i]['text'] = f'{hex(self.list_of_act_diodes[i].get_amplification())}'
-                    self.amp_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_exposure()}'
+                    if not self.list_of_act_diodes[i].get_exposure():
+                        self.amp_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_exposure()}'
+                    else: 
+                        self.amp_labels[i]['text'] = ''
                     self.amp_buttons[i]['text'] = self.amp_levels[i].get()               
                     self.factor_buttons[i]['text'] = self.list_of_act_diodes[i].get_multiply_factor_string()
 
