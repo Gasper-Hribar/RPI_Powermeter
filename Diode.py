@@ -336,6 +336,9 @@ class Diode:
                         if self.serviceMode:
                             self.power_unit = 'V'
                             self.power_read = self.power_read * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}']
+                            
+                            self.underexposed = False
+                            self.overexposed = False
                             break
 
                         else:
