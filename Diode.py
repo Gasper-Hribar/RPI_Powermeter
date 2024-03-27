@@ -254,10 +254,10 @@ class Diode:
             self.readcount = 0
             if fact:
                 self.underexposed = True
-                self.power_read = 0.000
+                # self.power_read = 0.000
             elif not fact:
                 self.overexposed = True
-                self.power_read = 10.00
+                # self.power_read = 10.00
             
             return 1
     
