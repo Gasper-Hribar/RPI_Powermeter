@@ -25,7 +25,7 @@ os.chdir(file_directory)
 # START
 # definition of fonts
 normal = "Lato 18"
-titles = "Lato 20"
+titles = "Lato 20 bold"
 outputfont = "Lato 36 bold"
 outputminifont = "Lato 16 bold"
 normalminifont = "Lato 16"
@@ -2047,7 +2047,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.factor_buttons.append(self.factor_button)
 
             self.l.place(relx=0.5, y=self.labely, anchor='center')
-            self.unit0.place(relx=0.5, rely=0.23, anchor='center')
+            # self.unit0.place(relx=0.5, rely=0.23, anchor='center')
             self.output0.place(relx=0.5, rely=0.38, anchor='center')
             self.amp_msg.place(relx=0.5, rely=0.51, anchor='center')
             self.factor_button.place(relx=0.5, rely=0.6, anchor='center')
@@ -2151,7 +2151,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.factor_buttons.append(self.factor_button1)
 
             self.l1.place(relx=0.5, y=self.labely, anchor='center')
-            self.unit1.place(relx=0.5, rely=0.23, anchor='center')
+            # self.unit1.place(relx=0.5, rely=0.23, anchor='center')
             self.output1.place(relx=0.5, rely=0.38, anchor='center')
             self.amp_msg1.place(relx=0.5, rely=0.51, anchor='center')
             self.factor_button1.place(relx=0.5, rely=0.6, anchor='center')
@@ -2255,7 +2255,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.factor_buttons.append(self.factor_button2)
             
             self.l2.place(relx=0.5, y=self.labely, anchor='center')
-            self.unit2.place(relx=0.5, rely=0.23, anchor='center')
+            # self.unit2.place(relx=0.5, rely=0.23, anchor='center')
             self.output2.place(relx=0.5, rely=0.38, anchor='center')
             self.amp_msg2.place(relx=0.5, rely=0.51, anchor='center')
             self.factor_button2.place(relx=0.5, rely=0.6, anchor='center')
@@ -2360,7 +2360,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.factor_buttons.append(self.factor_button3)
             
             self.l3.place(relx=0.5, y=self.labely, anchor='center')
-            self.unit3.place(relx=0.5, rely=0.23, anchor='center')
+            # self.unit3.place(relx=0.5, rely=0.23, anchor='center')
             self.output3.place(relx=0.5, rely=0.38, anchor='center')
             self.amp_msg3.place(relx=0.5, rely=0.51, anchor='center')
             self.factor_button3.place(relx=0.5, rely=0.6, anchor='center')
