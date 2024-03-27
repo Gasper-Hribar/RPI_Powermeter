@@ -1240,6 +1240,17 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
         """ SERVICE MODE ENABLE """
 
+        if self.service_mode:  # setting button colours according to auto detection 
+            ensm_color = teal
+            dissm_color = light_gray
+            dissm_fg = black
+            ensm_fg = white_ish
+        else:
+            ensm_color = light_gray
+            dissm_color = red
+            dissm_fg = white_ish
+            ensm_fg = black
+
         en_service_mode = tk.Message(setts_page,  # toggle auto detection message
             text="Service mode: ", 
             width=120,
@@ -1249,8 +1260,8 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         en_service_mode.place(relx=0.2, rely=0.7, anchor='center')
 
         enable_SM_btn = tk.Button(setts_page,  # enable auto detection button
-            bg=light_gray,
-            fg=black,
+            bg=ensm_color,
+            fg=ensm_fg,
             font=settingsfont,
             justify='center',
             text='enable',
@@ -1260,8 +1271,8 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         enable_SM_btn.place(relx=0.5, rely=0.7, anchor='center')
 
         disable_SM_btn = tk.Button(setts_page,  # disable auto detection button
-            bg=light_gray,
-            fg=black,
+            bg=dissm_color,
+            fg=dissm_fg,
             font=settingsfont,
             justify='center',
             text='disable',
@@ -1336,6 +1347,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
         def toggle_servicemode(mode):
             self.service_mode = mode
+
             
             for diode in self.all_diodes:
                 diode.set_serviceMode(mode)
@@ -1849,8 +1861,8 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                     self.title_labels[i]['text'] = f"P{self.active_diodes[i]}: {self.list_of_act_diodes[i].get_name()}"
                     value = f'{(round(self.list_of_act_diodes[i].get_power(), 5))}'[:5]
                     value_arr.append(value)
-                    self.unit_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_power_unit()}'
-                    self.output_labels[i]['text'] = value
+                    # self.unit_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_power_unit()}'
+                    self.output_labels[i]['text'] = f'{value} {self.list_of_act_diodes[i].get_power_unit()}'
                     self.wavelength_buttons[i]['text'] = self.wavelength_texts[i].get()
                     self.amp_nums[i]['text'] = f'{hex(self.list_of_act_diodes[i].get_amplification())}'
                     self.amp_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_exposure()}'

@@ -312,12 +312,12 @@ class Diode:
                     
                     """ AUTO RANGE """
                     if self.amp_bit_dg408 == 0x07:
-                        lower_limit = 0.01
+                        lower_limit = 0.0
                     else:
                         lower_limit = Diode.thresh_down
 
                     if self.amp_bit_dg408 == 0x00:
-                        upper_limit = 2.04
+                        upper_limit = 2.048
                     else:
                         upper_limit = Diode.thresh_up
 
@@ -335,7 +335,6 @@ class Diode:
                         
                         if self.serviceMode:
                             self.power_unit = 'V'
-                            break
 
                         else:
                             volt = self.power_read
@@ -353,9 +352,7 @@ class Diode:
                             if self.wavelength in Diode.specific_wavelengths:
                                 self.power_read = self.calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'][f'{int(self.amp_bit_dg408)}'] * self.power_read
 
-                            self.power_read = self.power_read * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}']
-
-                            self.power_read = 2 * self.multiply_factor * self.power_read * self.calibration['diode ports'][f'{hex(self.adc_add)}']
+                            self.power_read = self.multiply_factor * self.power_read * self.calibration['diode ports'][f'{hex(self.adc_add)}']
 
                             if self.multiply_factor > 0:
                                 ratio_pow = 1 / self.power_read
@@ -377,7 +374,8 @@ class Diode:
                             self.readcount = 0
                             self.underexposed = False
                             self.overexposed = False
-                            break
+
+                        self.power_read = 2 * self.power_read * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}']
 
                     if ex == 1:
                         return    
