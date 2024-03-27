@@ -304,6 +304,9 @@ class Diode:
 
                 while True:
 
+                    Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
+                    time.sleep(Diode.delay)
+
                     (c, data) = Diode.rpi.i2c_read_device(self.hiic1, 2)        
                     self.power_read = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))
                     
@@ -350,7 +353,7 @@ class Diode:
                             if self.wavelength in Diode.specific_wavelengths:
                                 self.power_read = self.calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'][f'{int(self.amp_bit_dg408)}'] * self.power_read
 
-                            self.power_read = 2 * (self.multiply_factor * self.power_read * self.calibration['diode ports'][f'{hex(self.adc_add)}'] * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}'])
+                            self.power_read = 2 * (self.multiply_factor * self.power_read * self.calibration['diode ports'][f'{hex(self.adc_add)}']) # * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}'])
 
                             if self.multiply_factor > 0:
                                 ratio_pow = 1 / self.power_read
