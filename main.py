@@ -25,7 +25,7 @@ os.chdir(file_directory)
 # START
 # definition of fonts
 normal = "Lato 18"
-titles = "Lato 20 bold"
+titles = "Lato 22 bold"
 outputfont = "Lato 36 bold"
 outputminifont = "Lato 16 bold"
 normalminifont = "Lato 16"
@@ -1858,7 +1858,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 value_arr = []
 
                 for i in range(self.diodecount):  # updates all variables on displayed frames
-                    self.title_labels[i]['text'] = f"P{self.active_diodes[i]}: {self.list_of_act_diodes[i].get_name()}"
+                    self.title_labels[i]['text'] = f"P{self.active_diodes[i] + 1}: {self.list_of_act_diodes[i].get_name()}"
                     value = f'{(round(self.list_of_act_diodes[i].get_power(), 5))}'[:5]
                     value_arr.append(value)
                     # self.unit_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_power_unit()}'
@@ -1892,7 +1892,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                         if not self.usb_path == '':
                             self.file_log = open(self.file_p, 'w')
                             self.file_log.write(f'PowerMeter: FOLAS -> log @ {time_frame}.\n')  # header of a file
-                            self.file_log.write('diode 0, diode 1, diode 2, diode 4\n')
+                            self.file_log.write('Port 1, Port 2, Port 3, Port 4\n')
                     
                     string_tw = self.diode0_log + self.diode1_log + self.diode2_log + self.diode3_log + '\n'
                     self.write_to_file(string_tw)
