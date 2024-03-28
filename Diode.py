@@ -302,11 +302,12 @@ class Diode:
 
             if self.is_active():
                 self.choose_source(False)
+                time.sleep(0.01)
 
                 while True:
 
-                    Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
-                    time.sleep(Diode.delay)
+                    # Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
+                    # time.sleep(Diode.delay)
 
                     (c, data) = Diode.rpi.i2c_read_device(self.hiic1, 2)        
                     self.power_read = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))
@@ -330,66 +331,59 @@ class Diode:
                         ex = self.change_amp(True)
                         self.overexposed = False
 
-                    if not self.auto_range:
-                        lower_limit = 0.0
-                        upper_limit = 2.048
+                    if self.auto_range and ex == 1: return
 
-                    if self.power_read <= upper_limit and self.power_read >= lower_limit:
+                    # elif self.power_read <= upper_limit and self.power_read >= lower_limit:
                             # if photodiode is not under or overexposed calculate true power in W by approximating the inverse of responsitivity curve
                             # and multiply it by current -> get W.
                         
-                        if self.serviceMode:
-                            self.power_unit = 'V'
-                            self.power_read = self.power_read * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}']
-                            
-                            self.underexposed = False
-                            self.overexposed = False
-                            break
+                    if self.serviceMode:
+                        self.power_unit = 'V'
+                        self.power_read = self.power_read * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}']
+                        
+                        self.underexposed = False
+                        self.overexposed = False
+                        break
 
-                        else:
-                            volt = self.power_read
-                            current = volt / self.config['resistors'][f'{self.amp_bit_dg408}']
-                            print(f'current: {current}')
+                    else:
+                        volt = self.power_read
+                        current = volt / self.config['resistors'][f'{self.amp_bit_dg408}']
+                        print(f'current: {current}')
 
-                            if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'exp':
-                                self.power_read = (current * (self.calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(self.calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength)))
-                            
-                            if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'poly':
-                                poly_power = len(self.calibration['diodes'][f'{self.name}'][true_section]['eq'])
-                                self.power_read = 0
-                                for i in range(poly_power):
-                                    self.power_read += (current * (self.calibration['diodes'][f'{self.name}'][true_section]['eq'][i] * (self.wavelength**i)))
-                            
-                            if self.wavelength in Diode.specific_wavelengths:
-                                self.power_read = self.calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'][f'{int(self.amp_bit_dg408)}'] * self.power_read
+                        if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'exp':
+                            self.power_read = (current * (self.calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(self.calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength)))
+                        
+                        if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'poly':
+                            poly_power = len(self.calibration['diodes'][f'{self.name}'][true_section]['eq'])
+                            self.power_read = 0
+                            for i in range(poly_power):
+                                self.power_read += (current * (self.calibration['diodes'][f'{self.name}'][true_section]['eq'][i] * (self.wavelength**i)))
+                        
+                        if self.wavelength in Diode.specific_wavelengths:
+                            self.power_read = self.calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'][f'{int(self.amp_bit_dg408)}'] * self.power_read
 
-                            self.power_read = 2 * self.multiply_factor * self.power_read * self.calibration['diode ports'][f'{hex(self.adc_add)}'] * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}']
+                        self.power_read = 2 * self.multiply_factor * self.power_read * self.calibration['diode ports'][f'{hex(self.adc_add)}'] * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}']
 
-                            if self.multiply_factor > 0:
-                                ratio_pow = 1 / self.power_read
-                                self.power_unit = 'W'
+                        if self.multiply_factor > 0:
+                            ratio_pow = 1 / self.power_read
+                            self.power_unit = 'W'
 
-                                if ratio_pow > 1:
-                                    if ratio_pow <= 1000:
-                                        self.power_read = 1000 * self.power_read
-                                        self.power_unit = 'mW'
-                                    elif ratio_pow <= 1e6:
-                                        self.power_read = 1e6 * self.power_read
-                                        self.power_unit = 'uW'
-                                    elif ratio_pow <= 1e9:
-                                        self.power_read = 1e9 * self.power_read
-                                        self.power_unit = 'nW'
-                                    elif ratio_pow <= 1e12:
-                                        self.power_read = 1e12 * self.power_read
-                                        self.power_unit = 'pW'
-                            self.readcount = 0
-                            self.underexposed = False
-                            self.overexposed = False
-                            break
-
-                       
-
-                    if ex == 1:
-                        return    
+                            if ratio_pow > 1:
+                                if ratio_pow <= 1000:
+                                    self.power_read = 1000 * self.power_read
+                                    self.power_unit = 'mW'
+                                elif ratio_pow <= 1e6:
+                                    self.power_read = 1e6 * self.power_read
+                                    self.power_unit = 'uW'
+                                elif ratio_pow <= 1e9:
+                                    self.power_read = 1e9 * self.power_read
+                                    self.power_unit = 'nW'
+                                elif ratio_pow <= 1e12:
+                                    self.power_read = 1e12 * self.power_read
+                                    self.power_unit = 'pW'
+                        self.readcount = 0
+                        self.underexposed = False
+                        self.overexposed = False
+                        break   
           
         return
