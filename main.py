@@ -2013,7 +2013,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 fg=space_blue,
                 bg=light_gray, 
                 font=ampfont,
-                text='0x00')
+                text='')
             self.amp_nums.append(self.amp_num)
 
             self.amp_msg = tk.Label(self.diode_banner,
@@ -2117,7 +2117,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 fg=space_blue,
                 bg=light_gray, 
                 font=ampfont,
-                text='0x00')
+                text='')
             self.amp_nums.append(self.amp_num1)
 
             self.amp_msg1 = tk.Label(self.diode_banner_1,
@@ -2221,7 +2221,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 fg=space_blue,
                 bg=light_gray, 
                 font=ampfont,
-                text='0x00')
+                text='')
             self.amp_nums.append(self.amp_num2)
 
             self.amp_msg2 = tk.Label(self.diode_banner_2,
@@ -2326,7 +2326,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 fg=space_blue,
                 bg=light_gray, 
                 font=ampfont,
-                text='0x00')
+                text='')
             self.amp_nums.append(self.amp_num3)
 
             self.amp_msg3 = tk.Label(self.diode_banner_3,
