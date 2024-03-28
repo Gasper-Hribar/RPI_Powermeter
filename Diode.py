@@ -304,6 +304,8 @@ class Diode:
                 self.choose_source(False)
                 time.sleep(0.01)
 
+                ex = 0
+
                 while True:
 
                     # Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
