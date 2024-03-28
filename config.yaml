@@ -4,6 +4,7 @@
 #  I2C addresses of four RPi Expander chips 
 #  refresh rate
 #  diode correction factors
+#  resistor values
 #
 
 defaults:
@@ -49,3 +50,16 @@ diodes:
     correction: 1
 
   # the list goes on
+
+# resistors used in amplification circuit
+
+resistors:
+  '0': 1000
+  '1': 3000
+  '2': 10000
+  '3': 30000
+  '4': 100000
+  '5': 300000
+  '6': 1000000
+  '7': 3000000
+

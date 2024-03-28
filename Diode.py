@@ -86,6 +86,7 @@ class Diode:
         self.multiply_factor_string = 'multiply'
         self.voltage_address = 2.048
         self.calibration = []
+        self.config = []
         self.serviceMode = False
         Diode.diodeCount += 1
         
@@ -134,10 +135,10 @@ class Diode:
 
     def set_name(self):
         file = open('config.yaml', 'r')
-        data = yaml.load(file, Loader=yaml.FullLoader)
+        self.config = yaml.load(file, Loader=yaml.FullLoader)
         file.close()
         if self.active:
-            self.name = data['diodes'][f'd{self.voltage_address:.1f}']['name']
+            self.name = self.config['diodes'][f'd{self.voltage_address:.1f}']['name']
         else:
             self.is_active()
 
@@ -343,7 +344,8 @@ class Diode:
 
                         else:
                             volt = self.power_read
-                            current = volt / Diode.amp_res[self.amp_bit_dg408]
+                            current = volt / self.config['resistors'][f'{self.amp_bit_dg408}']
+                            print(f'current: {current}')
 
                             if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'exp':
                                 self.power_read = (current * (self.calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(self.calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength)))
