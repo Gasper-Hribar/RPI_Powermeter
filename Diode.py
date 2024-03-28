@@ -255,9 +255,11 @@ class Diode:
             self.readcount = 0
             if fact:
                 self.underexposed = True
+                self.overexposed = False
                 # self.power_read = 0.000
             elif not fact:
                 self.overexposed = True
+                self.underexposed = False
                 # self.power_read = 10.00
             
             return 1
@@ -333,8 +335,6 @@ class Diode:
                         ex = self.change_amp(True)
                         self.overexposed = False
 
-                    if self.auto_range and ex == 1: return
-
                     # elif self.power_read <= upper_limit and self.power_read >= lower_limit:
                             # if photodiode is not under or overexposed calculate true power in W by approximating the inverse of responsitivity curve
                             # and multiply it by current -> get W.
@@ -343,8 +343,8 @@ class Diode:
                         self.power_unit = 'V'
                         self.power_read = self.power_read * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}']
                         
-                        self.underexposed = False
-                        self.overexposed = False
+                        # self.underexposed = False
+                        # self.overexposed = False
                         break
 
                     else:
@@ -384,8 +384,8 @@ class Diode:
                                     self.power_read = 1e12 * self.power_read
                                     self.power_unit = 'pW'
                         self.readcount = 0
-                        self.underexposed = False
-                        self.overexposed = False
+                        # self.underexposed = False
+                        # self.overexposed = False
                         break   
           
         return
