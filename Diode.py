@@ -386,6 +386,9 @@ class Diode:
                             self.readcount = 0
                             self.underexposed = False
                             self.overexposed = False
-                            break   
+                            break
+
+                    if ex == 1:
+                        return
           
         return
