@@ -330,7 +330,11 @@ class Diode:
                         ex = self.change_amp(True)
                         self.overexposed = False
 
-                    elif self.power_read <= upper_limit and self.power_read >= lower_limit:
+                    if not self.auto_range:
+                        lower_limit = 0.0
+                        upper_limit = 2.048
+
+                    if self.power_read <= upper_limit and self.power_read >= lower_limit:
                             # if photodiode is not under or overexposed calculate true power in W by approximating the inverse of responsitivity curve
                             # and multiply it by current -> get W.
                         
