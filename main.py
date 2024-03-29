@@ -52,7 +52,7 @@ white_ish = '#e1e5ee'
 # OVERWRITE to monochrome/grayscale verion
 black = space_blue = dark_blue = '#13070C'
 teal = orange = red = '#000000'
-dark_gray = light_gray = '#C2C2C2'
+dark_gray = light_gray = '#D2D1D0'
 light_blue = white_ish = '#DBDBDB'  # '#FFFFFF'
 # END
 
@@ -279,10 +279,10 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.multi_text3 = tk.StringVar(self)
         self.multi_texts = [self.multi_text0, self.multi_text1, self.multi_text2, self.multi_text3]
 
-        self.multi_text0.set('multiply')
-        self.multi_text1.set('multiply')
-        self.multi_text2.set('multiply')
-        self.multi_text3.set('multiply')
+        self.multi_text0.set('apply filter')
+        self.multi_text1.set('apply filter')
+        self.multi_text2.set('apply filter')
+        self.multi_text3.set('apply filter')
 
         # definition of amplification levels as text on display
         self.amp_level0 = tk.StringVar(self)  # amplification level -> value on DG408 mux pins
@@ -308,6 +308,18 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.wavelength_text1.set('1030 nm')
         self.wavelength_text2.set('1030 nm')
         self.wavelength_text3.set('1030 nm')
+
+        # definition of offset texts
+        self.offset_text0 = tk.StringVar(self)
+        self.offset_text1 = tk.StringVar(self)
+        self.offset_text2 = tk.StringVar(self)
+        self.offset_text3 = tk.StringVar(self)
+        self.offset_texts = [self.offset_text0, self.offset_text1, self.offset_text2, self.offset_text3]
+
+        self.offset_text0.set('set offset')
+        self.offset_text1.set('set offset')
+        self.offset_text2.set('set offset')
+        self.offset_text3.set('set offset')
 
         # settings page global variables
         self.refresh_rate = tk.StringVar(self)        
@@ -1427,28 +1439,32 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 self.list_of_act_diodes[0].set_wavelength(1030)
                 self.list_of_act_diodes[0].toggle_true_auto_range()
                 self.amp_level0.set('amp level auto')
-                self.multi_text0.set('multiply')
+                self.multi_text0.set('apply filter')
+                self.offset_text0.set('offset value')
             if self.diodecount >= 2:
                 self.voltage1_factor = 1
                 self.wavelength_text1.set('1030 nm')
                 self.list_of_act_diodes[1].set_wavelength(1030)
                 self.list_of_act_diodes[1].toggle_true_auto_range()
                 self.amp_level1.set('amp level auto')
-                self.multi_text1.set('multiply')
+                self.multi_text1.set('apply filter')
+                self.offset_text1.set('offset value')
             if self.diodecount >= 3:
                 self.voltage2_factor = 1
                 self.wavelength_text2.set('1030 nm')
                 self.list_of_act_diodes[2].set_wavelength(1030)
                 self.list_of_act_diodes[2].toggle_true_auto_range()
                 self.amp_level2.set('amp level auto')
-                self.multi_text2.set('multiply')
+                self.multi_text2.set('apply filter')
+                self.offset_text2.set('offset value')
             if self.diodecount == 4:
                 self.voltage3_factor = 1
                 self.wavelength_text3.set('1030 nm')
                 self.list_of_act_diodes[3].set_wavelength(1030)
                 self.list_of_act_diodes[3].toggle_true_auto_range()
                 self.amp_level3.set('amp level auto')
-                self.multi_text3.set('multiply')
+                self.multi_text3.set('apply filter')
+                self.offset_text3.set('offset value')
 
             self.refresh_rate.set(f'{self.default_freq}')
             self.delay_time = 1 / self.default_freq
@@ -1464,6 +1480,229 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.update_widgets()
             return
 
+
+###### 
+######
+######
+###### OFFSET SETTINGS POP-UP WINDOW
+        
+    def set_offset(self, num):
+        "Displays a new Toplevel window in which user sets the value to offset the output by."
+
+        if self.service_mode:
+            return
+        
+        self.offset_value = 0
+        self.offset_sign = True
+        self.decimal_count_offset = 0
+
+        new_offset = tk.Toplevel(
+            bg=white_ish,
+            relief='flat'
+        )
+
+        new_offset.title('Set offset')
+        new_offset.geometry(f'305x235+250+125')
+
+        offset = tk.Label(new_offset,
+            font=outputminifont,
+            fg=space_blue,
+            bg=light_gray, 
+            justify='center',
+            height=2,
+            text='')
+
+        btn_0 = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='0',
+            width=2,
+            height=2,
+            command=lambda: add_to_value(0))
+
+        btn_1 = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='1',
+            width=2,
+            height=2,
+            command=lambda: add_to_value(1))
+
+        btn_2 = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='2',
+            width=2,
+            height=2,
+            command=lambda: add_to_value(2))
+
+        btn_3 = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='3',
+            width=2,
+            height=2,
+            command=lambda: add_to_value(3))
+
+        btn_4 = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='4',
+            width=2,
+            height=2,
+            command=lambda: add_to_value(4))
+
+        btn_5 = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='5',
+            width=2,
+            height=2,
+            command=lambda: add_to_value(5))
+
+        btn_6 = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='6',
+            width=2,
+            height=2,
+            command=lambda: add_to_value(6))
+
+        btn_7 = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='7',
+            width=2,
+            height=2,
+            command=lambda: add_to_value(7))
+
+        btn_8 = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='8',
+            width=2,
+            height=2,
+            command=lambda: add_to_value(8))
+
+        btn_9 = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='9',
+            width=2,
+            height=2,
+            command=lambda: add_to_value(9))
+
+        btn_OK = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='ok',
+            width=20,
+            height=2,
+            command=lambda: confirm_value(num))
+        
+        btn_plus = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='+',
+            width=4,
+            height=2,
+            command=lambda: is_positive(True, num))
+
+        btn_minus = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='-',
+            width=4,
+            height=2,
+            command=lambda: is_positive(False, num))
+        
+        btn_dot = tk.Button(new_offset, 
+            bg=space_blue,
+            fg=white_ish,
+            font=ampfont,
+            justify='center',
+            text='.',
+            width=2,
+            height=2,
+            command=lambda: dec_count())
+        
+
+        first_row = 0.
+        second_row = 0.25
+        third_row = 0.5
+        fourth_row = 0.75
+
+        offset.place(relx=0, rely=first_row, relwidth=1, relheight=0.25)
+        btn_0.place(relx=0, rely=second_row, relwidth=(1/6), relheight=0.25)
+        btn_1.place(relx=(1/6), rely=second_row, relwidth=(1/6), relheight=0.25)
+        btn_2.place(relx=(2/6), rely=second_row, relwidth=(1/6), relheight=0.25)
+        btn_3.place(relx=(3/6), rely=second_row, relwidth=(1/6), relheight=0.25)
+        btn_4.place(relx=(4/6), rely=second_row, relwidth=(1/6), relheight=0.25)        
+        btn_plus.place(relx=(5/6), rely=second_row, relwidth=(1/6), relheight=0.25)
+        btn_5.place(relx=0, rely=third_row, relwidth=(1/6), relheight=0.25)
+        btn_6.place(relx=(1/6), rely=third_row, relwidth=(1/6), relheight=0.25)
+        btn_7.place(relx=(2/6), rely=third_row, relwidth=(1/6), relheight=0.25)
+        btn_8.place(relx=(3/6), rely=third_row, relwidth=(1/6), relheight=0.25)
+        btn_9.place(relx=(4/6), rely=third_row, relwidth=(1/6), relheight=0.25)
+        btn_minus.place(relx=(5/6), rely=third_row, relwidth=(1/6), relheight=0.25)
+        btn_dot.place(relx=0, rely=fourth_row, relwidth=(1/6), relheight=0.25)
+        btn_OK.place(relx=(1/6), rely=fourth_row, relwidth=(5/6), relheight=0.25)
+
+        def confirm_value(num):
+            self.offset_texts[num].set(f'{self.offset_value} nm')
+            self.list_of_act_diodes[num].set_offset(self.offset_value)
+            self.offse_value = 0
+            new_offset.destroy()
+
+        def add_to_value(val):
+            if self.decimal_count_offset == 0:
+                self.offset_value = (10 * abs(self.offset_value)) + val
+            else:
+                self.offset_value = abs(self.offset_value) + (val / 10**self.decimal_count_offset)
+
+            if self.offset_sign == False:
+                self.offset_value = 0 - self.offset_value
+            offset['text'] = self.offset_value
+
+        def is_positive(sign, num):
+            if sign:
+                self.offset_sign = True
+            else:
+                self.offset_sign = False
+
+        def dec_count():
+            self.decimal_count_offset += 1
+
+        
+        return
+
+
 ###### 
 ######
 ######
@@ -1478,7 +1717,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             bg=white_ish,
             relief='flat')
 
-        new_wave.title('.')
+        new_wave.title('Set wavelength')
         new_wave.geometry(f'305x235+250+125')
 
         wavelength = tk.Label(new_wave,
@@ -1871,6 +2110,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                         self.amp_labels[i]['text'] = ''
                     self.amp_buttons[i]['text'] = self.amp_levels[i].get()               
                     self.factor_buttons[i]['text'] = self.list_of_act_diodes[i].get_multiply_factor_string()
+                    self.offset_buttons[i]['text'] = f'{self.list_of_act_diodes[i].get_offset()}'
 
                 if self.log_sys:
 
@@ -1956,6 +2196,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.amp_labels = []
         self.amp_buttons = []
         self.factor_buttons = []
+        self.offset_buttons = []
 
         if self.diodecount > 0:
 
@@ -1995,6 +2236,17 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 justify='center',
                 text='0.0')
             self.output_labels.append(self.output0)
+
+            self.offset0_btn = tk.Button(self.diode_banner,
+                width=self.label_width+6, 
+                height=1,
+                fg=teal,
+                bg=light_gray, 
+                font=outputminifont,
+                text=self.offset_text0.get(),
+                relief='flat',
+                command=lambda: self.set_offset(0))
+            self.offset_buttons.append(self.offset0_btn)
 
             self.wave_text = tk.Button(self.diode_banner, 
                 width=self.label_width+6, 
@@ -2051,8 +2303,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
             self.l.place(relx=0.5, y=self.labely, anchor='center')
             # self.unit0.place(relx=0.5, rely=0.23, anchor='center')
-            self.output0.place(relx=0.5, rely=0.38, anchor='center')
-            self.amp_msg.place(relx=0.5, rely=0.51, anchor='center')
+            self.output0.place(relx=0.5, rely=0.28, anchor='center')
+            self.offset0_btn.place(relx=0.5, rely=0.51, anchor='center')
+            self.amp_msg.place(relx=0.5, rely=0.42, anchor='center')
             self.factor_button.place(relx=0.5, rely=0.6, anchor='center')
             self.wave_text.place(relx=0.5, rely=0.7, anchor='center')
             self.ampl.place(relx=0.5, rely=0.8, anchor='center')
@@ -2099,6 +2352,17 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 justify='center',
                 text='0.0')
             self.output_labels.append(self.output1)
+
+            self.offset1_btn = tk.Button(self.diode_banner,
+                width=self.label_width+6, 
+                height=1,
+                fg=teal,
+                bg=light_gray, 
+                font=outputminifont,
+                text=self.offset_text1.get(),
+                relief='flat',
+                command=lambda: self.set_offset(1))
+            self.offset_buttons.append(self.offset1_btn)
 
             self.wave_text1 = tk.Button(self.diode_banner_1, 
                 width=self.label_width+6, 
@@ -2155,8 +2419,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
             self.l1.place(relx=0.5, y=self.labely, anchor='center')
             # self.unit1.place(relx=0.5, rely=0.23, anchor='center')
-            self.output1.place(relx=0.5, rely=0.38, anchor='center')
-            self.amp_msg1.place(relx=0.5, rely=0.51, anchor='center')
+            self.output1.place(relx=0.5, rely=0.28, anchor='center')
+            self.offset1_btn.place(relx=0.5, rely=0.51, anchor='center')
+            self.amp_msg1.place(relx=0.5, rely=0.42, anchor='center')
             self.factor_button1.place(relx=0.5, rely=0.6, anchor='center')
             self.wave_text1.place(relx=0.5, rely=0.7, anchor='center')
             self.ampl1.place(relx=0.5, rely=0.8, anchor='center')
@@ -2203,6 +2468,17 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 justify='center',
                 text='0.0')
             self.output_labels.append(self.output2)
+
+            self.offset2_btn = tk.Button(self.diode_banner,
+                width=self.label_width+6, 
+                height=1,
+                fg=teal,
+                bg=light_gray, 
+                font=outputminifont,
+                text=self.offset_text2.get(),
+                relief='flat',
+                command=lambda: self.set_offset(2))
+            self.offset_buttons.append(self.offset2_btn)
 
             self.wave_text2 = tk.Button(self.diode_banner_2, 
                 width=self.label_width+6, 
@@ -2259,8 +2535,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             
             self.l2.place(relx=0.5, y=self.labely, anchor='center')
             # self.unit2.place(relx=0.5, rely=0.23, anchor='center')
-            self.output2.place(relx=0.5, rely=0.38, anchor='center')
-            self.amp_msg2.place(relx=0.5, rely=0.51, anchor='center')
+            self.output2.place(relx=0.5, rely=0.28, anchor='center')
+            self.offset2_btn.place(relx=0.5, rely=0.51, anchor='center')
+            self.amp_msg2.place(relx=0.5, rely=0.42, anchor='center')
             self.factor_button2.place(relx=0.5, rely=0.6, anchor='center')
             self.wave_text2.place(relx=0.5, rely=0.7, anchor='center')
             self.ampl2.place(relx=0.5, rely=0.8, anchor='center')
@@ -2308,6 +2585,17 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 justify='center',
                 text='0.0')
             self.output_labels.append(self.output3)
+
+            self.offset3_btn = tk.Button(self.diode_banner,
+                width=self.label_width+6, 
+                height=1,
+                fg=teal,
+                bg=light_gray, 
+                font=outputminifont,
+                text=self.offset_text3.get(),
+                relief='flat',
+                command=lambda: self.set_offset(3))
+            self.offset_buttons.append(self.offset3_btn)
             
             self.wave_text3 = tk.Button(self.diode_banner_3, 
                 width=self.label_width+6, 
@@ -2364,8 +2652,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             
             self.l3.place(relx=0.5, y=self.labely, anchor='center')
             # self.unit3.place(relx=0.5, rely=0.23, anchor='center')
-            self.output3.place(relx=0.5, rely=0.38, anchor='center')
-            self.amp_msg3.place(relx=0.5, rely=0.51, anchor='center')
+            self.output3.place(relx=0.5, rely=0.28, anchor='center')
+            self.offset3_btn.place(relx=0.5, rely=0.51, anchor='center')
+            self.amp_msg3.place(relx=0.5, rely=0.42, anchor='center')
             self.factor_button3.place(relx=0.5, rely=0.6, anchor='center')
             self.wave_text3.place(relx=0.5, rely=0.7, anchor='center')
             self.ampl3.place(relx=0.5, rely=0.8, anchor='center')

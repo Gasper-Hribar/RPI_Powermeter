@@ -82,8 +82,9 @@ class Diode:
         self.active = True
         self.wasactive = False
         self.wavelength = 1030
+        self.offset = 0
         self.multiply_factor = 1
-        self.multiply_factor_string = 'multiply'
+        self.multiply_factor_string = 'apply filter'
         self.voltage_address = 2.048
         self.calibration = []
         self.config = []
@@ -110,6 +111,14 @@ class Diode:
 
     def get_wavelength(self):
         return self.wavelength
+
+    def get_offset(self):
+        if self.serviceMode:
+            return 'offset unavailable'
+        if self.offset == 0:
+            return 'offset value'
+        else:
+            return self.offset
 
     def get_multiply_factor(self):
         return self.multiply_factor
@@ -152,6 +161,9 @@ class Diode:
     def set_wavelength(self, wave_val):
         """Sets wavelength."""
         self.wavelength = wave_val
+
+    def set_offset(self, offset):
+        self.offset = offset
 
     def toggle_true_auto_range(self):
         """Toggle automatic range of amplification to True."""
@@ -203,7 +215,7 @@ class Diode:
         
         else:
             self.multiply_factor = 1
-            self.multiply_factor_string = 'multiply'
+            self.multiply_factor_string = 'apply filter'
             self.active = False
             self.wasactive = self.active
             activity = False
@@ -296,7 +308,6 @@ class Diode:
             else:                            
                 volt = data
                 current = volt / self.config['resistors'][f'{self.amp_bit_dg408}']
-                print(f'current: {current}')
 
                 if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'exp':
                     self.power_read = (current * (self.calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(self.calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength)))
@@ -329,6 +340,10 @@ class Diode:
                         elif ratio_pow <= 1e12:
                             self.power_read = 1e12 * self.power_read
                             self.power_unit = 'pW'
+
+                    if not self.offset == 0:
+                        self.power_read += self.offset
+
                 self.readcount = 0
                 # self.underexposed = False
                 # self.overexposed = False
@@ -377,10 +392,10 @@ class Diode:
                     
                     Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
                     time.sleep(Diode.delay)
-
+                    
                     (c, data) = Diode.rpi.i2c_read_device(self.hiic1, 2)        
                     read_voltage = Diode.int_ref_adc * (int.from_bytes(data, 'big', signed=True) / ((2**15) - 1))
-
+                    
                     if self.auto_range:
                         if read_voltage > upper_limit:
                             ex = self.change_amp(False)
