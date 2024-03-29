@@ -26,4 +26,4 @@ Calibration file contains correction factors for each photodiode at different wa
 - Fix the bug of auto range, when the thing jumps uncontrolably and does not settle. This is especially troubling on the boot of the Raspberry. (done)
 - Fix the thresholds. On the borders the range should be full in one way. (done)
 - Find a new way to search for the optimal range.
-- Offset implementation. User can input a value to offset the output.
+- Offset implementation. User can input a value to offset the output. (done)
