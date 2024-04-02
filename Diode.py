@@ -360,18 +360,18 @@ class Diode:
             If it does, continue. """
 
         if not self.name == '':
-            sections = self.calibration['diodes'][f'{self.name}']['sections']
-            sec_keys = list(sections.keys())
-            true_section = ''
-            for i in sec_keys:
-                min_index = sections[i].find('-')
-                sec_min = int(sections[i][0:min_index])
-                sec_max = int(sections[i][min_index+1:])
-                if self.wavelength > sec_min and self.wavelength <= sec_max:
-                    true_section = i
-                    break
-                else:
-                    true_section = ''        
+            # sections = self.calibration['diodes'][f'{self.name}']['sections']
+            # sec_keys = list(sections.keys())
+            # true_section = ''
+            # for i in sec_keys:
+            #     min_index = sections[i].find('-')
+            #     sec_min = int(sections[i][0:min_index])
+            #     sec_max = int(sections[i][min_index+1:])
+            #     if self.wavelength > sec_min and self.wavelength <= sec_max:
+            #         true_section = i
+            #         break
+            #     else:
+            #         true_section = ''        
 
             """ Is the diode still active? """
 

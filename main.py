@@ -1902,7 +1902,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         btn_1030.place(relx=0.76, rely=fourth_row)
 
         def confirm_value(num):
-            if self.wave_value > 400 and self.wave_value <= 1100:
+            if self.wave_value > 350 and self.wave_value <= 1100:
                 self.wavelength_texts[num].set(f'{self.wave_value} nm')
                 self.list_of_act_diodes[num].set_wavelength(self.wave_value)
 
