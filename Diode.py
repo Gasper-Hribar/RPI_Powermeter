@@ -147,7 +147,10 @@ class Diode:
         self.config = yaml.load(file, Loader=yaml.FullLoader)
         file.close()
         if self.active:
-            self.name = self.config['diodes'][f'd{self.voltage_address:.1f}']['name']
+            try:
+                self.name = self.config['diodes'][f'd{round(self.voltage_address, 1):.1f}']['name']
+            except:
+                return
         else:
             self.is_active()
 
