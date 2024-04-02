@@ -312,7 +312,7 @@ class Diode:
                 volt = data
                 current = volt / self.config['resistors'][f'{self.amp_bit_dg408}']
 
-                self.power_read = current * (self.calibration['diodes'][f'{self.name}']['response'][self.wavelength - 350])
+                self.power_read = current * 1/(self.calibration['diodes'][f'{self.name}']['response'][self.wavelength - 350])
 
                 # if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'exp':
                 #     self.power_read = (current * (self.calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(self.calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength)))

@@ -11,7 +11,7 @@
 # Access to sections and approximation curves is possible through the name of the photodiode (ps100-6, ps100-7, ...)
 # 
 
-calibrated wavelengths: [635, 940, 976, 1030]
+calibrated wavelengths: [635, 940, 976, 1030, 1064]
 
 amplificaton calibration:
   '0': 1
