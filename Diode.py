@@ -111,6 +111,12 @@ class Diode:
 
     def get_wavelength(self):
         return self.wavelength
+    
+    def is_under_10(self):
+        if self.power_read / Diode.thresh_up <= 0.1:
+            return True
+        else:
+            return False
 
     def get_offset(self):
         if self.serviceMode:

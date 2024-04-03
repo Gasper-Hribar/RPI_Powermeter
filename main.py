@@ -2099,10 +2099,16 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
                 for i in range(self.diodecount):  # updates all variables on displayed frames
                     self.title_labels[i]['text'] = f"P{self.active_diodes[i] + 1}: {self.list_of_act_diodes[i].get_name()}"
-                    value = f'{(round(self.list_of_act_diodes[i].get_power(), 5))}'[:5]
-                    value_arr.append(value)
+                    
                     # self.unit_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_power_unit()}'
+                    value = f'{(round(self.list_of_act_diodes[i].get_power(), 5))}'[:5]
+                    
+                    if (self.list_of_act_diodes[i].get_amplification() == 7) and self.list_of_act_diodes[i].is_under_10():
+                        value = f'{(round(self.list_of_act_diodes[i].get_power(), 4))}'[:4]
+
+                    value_arr.append(value)
                     self.output_labels[i]['text'] = f'{value} {self.list_of_act_diodes[i].get_power_unit()}'
+
                     self.wavelength_buttons[i]['text'] = self.wavelength_texts[i].get()
                     self.amp_nums[i]['text'] = f'amp: {self.list_of_act_diodes[i].get_amplification()}'
                     if not self.list_of_act_diodes[i].get_exposure() == False:
