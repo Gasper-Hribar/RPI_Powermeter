@@ -181,6 +181,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             for item in widget_list:
                 item.destroy()
 
+            self.set_default_values()
             self.create_widgets()
         except:
             pass
