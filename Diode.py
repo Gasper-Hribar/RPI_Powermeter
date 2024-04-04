@@ -113,7 +113,7 @@ class Diode:
         return self.wavelength
     
     def is_under_10(self):
-        if self.voltage / Diode.thresh_up <= 0.1:
+        if self.voltage / Diode.thresh_up <= 0.05:
             return True
         else:
             return False
