@@ -88,6 +88,7 @@ class Diode:
         self.calibration = []
         self.config = []
         self.serviceMode = False
+        self.voltage = 0.
         Diode.diodeCount += 1
         
     def get_name(self):
@@ -112,7 +113,7 @@ class Diode:
         return self.wavelength
     
     def is_under_10(self):
-        if self.power_read / Diode.thresh_up <= 0.1:
+        if self.voltage / Diode.thresh_up <= 0.1:
             return True
         else:
             return False
@@ -308,8 +309,8 @@ class Diode:
                 self.power_read = data
                 
             else:                            
-                volt = data
-                current = volt / self.config['resistors'][f'{self.amp_bit_dg408}']
+                self.voltage = data
+                current = self.voltage / self.config['resistors'][f'{self.amp_bit_dg408}']
 
                 self.power_read = current * 1/(self.calibration['diodes'][f'{self.name}']['response'][self.wavelength - 350])
                 if self.wavelength in Diode.specific_wavelengths:
