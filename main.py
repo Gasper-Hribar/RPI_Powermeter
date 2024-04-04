@@ -1678,7 +1678,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         def confirm_value(num):
             self.offset_texts[num].set(f'{self.offset_value} nm')
             self.list_of_act_diodes[num].set_offset(self.offset_value)
-            self.offse_value = 0
+            self.offset_value = 0
             new_offset.destroy()
 
         def add_to_value(val):
@@ -2084,7 +2084,9 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                         value = f'{(round(self.list_of_act_diodes[i].get_power(), 5))}'[:5]
                         
                         if (self.list_of_act_diodes[i].get_amplification() == 7) and self.list_of_act_diodes[i].is_under_10():
-                            value = f'{(round(self.list_of_act_diodes[i].get_power(), 3))}'[:4]
+                            value = f'{(round(self.list_of_act_diodes[i].get_power(), 2))}'[:4]
+                            if value[-1] == '.':
+                                value = value[0:-1]
 
                         value_arr.append(value)
 
@@ -2343,7 +2345,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 text='0.0')
             self.output_labels.append(self.output1)
 
-            self.offset1_btn = tk.Button(self.diode_banner,
+            self.offset1_btn = tk.Button(self.diode_banner_1,
                 width=self.label_width+6, 
                 height=1,
                 fg=teal,
@@ -2459,7 +2461,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 text='0.0')
             self.output_labels.append(self.output2)
 
-            self.offset2_btn = tk.Button(self.diode_banner,
+            self.offset2_btn = tk.Button(self.diode_banner_2,
                 width=self.label_width+6, 
                 height=1,
                 fg=teal,
@@ -2576,7 +2578,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 text='0.0')
             self.output_labels.append(self.output3)
 
-            self.offset3_btn = tk.Button(self.diode_banner,
+            self.offset3_btn = tk.Button(self.diode_banner_3,
                 width=self.label_width+6, 
                 height=1,
                 fg=teal,
