@@ -2084,7 +2084,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                         value = f'{(round(self.list_of_act_diodes[i].get_power(), 5))}'[:5]
                         
                         if (self.list_of_act_diodes[i].get_amplification() == 7) and self.list_of_act_diodes[i].is_under_10():
-                            value = f'{(round(self.list_of_act_diodes[i].get_power(), 3))}'[:3]
+                            value = f'{(round(self.list_of_act_diodes[i].get_power(), 3))}'[:4]
 
                         value_arr.append(value)
 
