@@ -2074,41 +2074,24 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
         if not self.diodecount == 0:
 
-            # """Untested code."""
-            # if self.service_mode:
-            #     try:
-            #         self.amp_num.place(relx=0.5, rely=0.90, anchor='center')
-            #         self.amp_num1.place(relx=0.5, rely=0.90, anchor='center')
-            #         self.amp_num2.place(relx=0.5, rely=0.90, anchor='center')
-            #         self.amp_num3.place(relx=0.5, rely=0.90, anchor='center')
-            #     except:
-            #         pass
-            # else:
-            #     try:
-            #         self.amp_num.destroy()
-            #         self.amp_num1.destroy()
-            #         self.amp_num2.destroy()
-            #         self.amp_num3.destroy()
-            #     except:
-            #         pass
-            # """ ^^ """
-
             if self.reading_pow:
                 string_tw = ''
                 value_arr = []
 
                 for i in range(self.diodecount):  # updates all variables on displayed frames
                     self.title_labels[i]['text'] = f"P{self.active_diodes[i] + 1}: {self.list_of_act_diodes[i].get_name()}"
-                    
-                    # self.unit_labels[i]['text'] = f'{self.list_of_act_diodes[i].get_power_unit()}'
-                    value = f'{(round(self.list_of_act_diodes[i].get_power(), 5))}'[:5]
-                    
-                    if (self.list_of_act_diodes[i].get_amplification() == 7) and self.list_of_act_diodes[i].is_under_10():
-                        value = f'{(round(self.list_of_act_diodes[i].get_power(), 4))}'[:4]
+                    if not self.service_mode:
+                        value = f'{(round(self.list_of_act_diodes[i].get_power(), 5))}'[:5]
+                        
+                        if (self.list_of_act_diodes[i].get_amplification() == 7) and self.list_of_act_diodes[i].is_under_10():
+                            value = f'{(round(self.list_of_act_diodes[i].get_power(), 4))}'[:4]
 
-                    value_arr.append(value)
+                        value_arr.append(value)
+
+                    else:
+                        value = f'{(round(self.list_of_act_diodes[i].get_power(), 7))}'[:7]
+
                     self.output_labels[i]['text'] = f'{value} {self.list_of_act_diodes[i].get_power_unit()}'
-
                     self.wavelength_buttons[i]['text'] = self.wavelength_texts[i].get()
                     self.amp_nums[i]['text'] = f'amp: {self.list_of_act_diodes[i].get_amplification()}'
                     if not self.list_of_act_diodes[i].get_exposure() == False:

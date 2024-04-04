@@ -36,10 +36,9 @@ class Diode:
     not_set = True
     int_ref_adc = 2.048
     thresh_up = 1.8
-    thresh_down = 0.5
-    amp_res = [1000, 3000, 10000, 30000, 100000, 300000, 1000000, 3000000]
+    thresh_down = 0.3
     units = ['W', 'mW', 'uW', 'nW', 'pW']
-    delay = 0.060
+    delay = 0.040
 
     file = open('calibration.yaml')
     caldata = yaml.load(file, Loader=yaml.FullLoader)
@@ -266,8 +265,6 @@ class Diode:
                     self.amp_bit_dg408 = 0x00
                     self.overexposed = True
                     self.readcount += 1
-            # Diode.rpi.i2c_write_byte_data(self.hiic2, Diode.D0_TCA_OUT_REG, self.amp_bit_dg408)
-            # time.sleep(Diode.delay)
 
         else:
             self.readcount +=1
@@ -276,12 +273,8 @@ class Diode:
             self.readcount = 0
             if fact:
                 self.underexposed = True
-                # self.overexposed = False
-                # self.power_read = 0.000
             elif not fact:
                 self.overexposed = True
-                # self.underexposed = False
-                # self.power_read = 10.00
             
             return 1
     
@@ -319,22 +312,12 @@ class Diode:
                 current = volt / self.config['resistors'][f'{self.amp_bit_dg408}']
 
                 self.power_read = current * 1/(self.calibration['diodes'][f'{self.name}']['response'][self.wavelength - 350])
-
-                # if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'exp':
-                #     self.power_read = (current * (self.calibration['diodes'][f'{self.name}'][true_section]['eq'][0]*np.exp(self.calibration['diodes'][f'{self.name}'][true_section]['eq'][1]*self.wavelength)))
-                
-                # if self.calibration['diodes'][f'{self.name}'][true_section]['type'] == 'poly':
-                #     poly_power = len(self.calibration['diodes'][f'{self.name}'][true_section]['eq'])
-                #     self.power_read = 0
-                #     for i in range(poly_power):
-                #         self.power_read += (current * (self.calibration['diodes'][f'{self.name}'][true_section]['eq'][i] * (self.wavelength**i)))
-                
                 if self.wavelength in Diode.specific_wavelengths:
                     self.power_read = self.calibration['diodes'][f'{self.name}']['specific corrections'][f'{self.wavelength}'] * self.power_read
 
                 self.power_read = 2 * self.multiply_factor * self.calibration['diode ports'][f'{hex(self.adc_add)}'] * self.calibration['amplificaton calibration'][f'{self.amp_bit_dg408}'] * self.power_read
 
-                if self.multiply_factor > 0:
+                if self.multiply_factor > 0 and not self.power_read == 0:
                     ratio_pow = 1 / self.power_read
                     self.power_unit = 'W'
 
@@ -356,8 +339,6 @@ class Diode:
                         self.power_read += self.offset
 
                 self.readcount = 0
-                # self.underexposed = False
-                # self.overexposed = False
                 
             return
         
@@ -366,19 +347,6 @@ class Diode:
             If it does, continue. """
 
         if not self.name == '':
-            # sections = self.calibration['diodes'][f'{self.name}']['sections']
-            # sec_keys = list(sections.keys())
-            # true_section = ''
-            # for i in sec_keys:
-            #     min_index = sections[i].find('-')
-            #     sec_min = int(sections[i][0:min_index])
-            #     sec_max = int(sections[i][min_index+1:])
-            #     if self.wavelength > sec_min and self.wavelength <= sec_max:
-            #         true_section = i
-            #         break
-            #     else:
-            #         true_section = ''        
-
             """ Is the diode still active? """
 
             if self.is_active():
