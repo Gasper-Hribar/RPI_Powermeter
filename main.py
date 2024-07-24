@@ -108,7 +108,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         """Returns a path to USB where it logs measured values."""
         getname = subprocess.check_output(['whoami'])
         name = getname.decode("utf-8")
-        path_to_usb = f'/media/{name}/'
+        path_to_usb = f'/media/{name[:-2]}/'
         dirs = os.listdir(path_to_usb)
         if not dirs == []:
             return f'{path_to_usb}'+f'{dirs[0]}/'
