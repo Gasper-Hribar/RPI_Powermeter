@@ -2137,7 +2137,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                     
                     measurement_time = time.time() - self.time_passed
                     
-                    string_tw = f'{measurement_time},' + self.diode0_log + self.diode1_log + self.diode2_log + self.diode3_log + '\n'
+                    string_tw = f'{measurement_time:.2f},' + self.diode0_log + self.diode1_log + self.diode2_log + self.diode3_log + '\n'
                     self.write_to_file(string_tw)
                     self.reset_values()
         
