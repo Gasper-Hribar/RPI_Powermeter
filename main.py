@@ -329,6 +329,8 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.refresh_rate = tk.StringVar(self)        
         self.refresh_rate.set(f'{self.refresh_freq}')
 
+        self.time_passed = 0.
+
         return
 
 ######
@@ -2111,13 +2113,13 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
 
                     for i in range(self.diodecount):  # saves read values to specified variables in order to keep the right diode orde of values
                         if self.list_of_act_diodes[i].get_adc_address() == self.adc0:
-                            self.diode0_log = value_arr[i] + ','
+                            self.diode0_log = value_arr[i] + ',' + f'{self.list_of_act_diodes[i].get_power_unit()}' + ','
                         if self.list_of_act_diodes[i].get_adc_address() == self.adc1:
-                            self.diode1_log = value_arr[i] + ','
+                            self.diode1_log = value_arr[i] + ',' + f'{self.list_of_act_diodes[i].get_power_unit()}' + ','
                         if self.list_of_act_diodes[i].get_adc_address() == self.adc2:
-                            self.diode2_log = value_arr[i] + ','
+                            self.diode2_log = value_arr[i] + ',' + f'{self.list_of_act_diodes[i].get_power_unit()}' + ','
                         if self.list_of_act_diodes[i].get_adc_address() == self.adc3:
-                            self.diode3_log = value_arr[i]
+                            self.diode3_log = value_arr[i] + ',' + f'{self.list_of_act_diodes[i].get_power_unit()}'
                     
                     if not self.file_not_set:  # opens a SET file to APPEND to it
                         self.file_log = open(self.file_p, 'a')
@@ -2130,9 +2132,13 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                         if not self.usb_path == '':
                             self.file_log = open(self.file_p, 'w')
                             self.file_log.write(f'PowerMeter: FOLAS -> log @ {time_frame}.\n')  # header of a file
-                            self.file_log.write('Port 1, Port 2, Port 3, Port 4\n')
+                            self.file_log.write('Time [s], Port 1, / , Port 2, / , Port 3, / , Port 4, / \n')
+                        self.time_passed = time.time
                     
-                    string_tw = self.diode0_log + self.diode1_log + self.diode2_log + self.diode3_log + '\n'
+                    measurement_time = time.time - self.time_passed
+                    self.time_passed = time.time
+                    
+                    string_tw = f'{measurement_time},' + self.diode0_log + self.diode1_log + self.diode2_log + self.diode3_log + '\n'
                     self.write_to_file(string_tw)
                     self.reset_values()
         
