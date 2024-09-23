@@ -407,16 +407,18 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             filters = self.calibration['filters']
             filters = list(filters.keys())
             if str in filters:
-                if wavelength in self.calibration['calibrated wavelengths']:
+                if wavelength > 550 and wavelength < 1150:
                     self.mult_value = self.calibration['filters'][str][
-                        f'{self.list_of_act_diodes[num].get_wavelength()}']
+                        self.list_of_act_diodes[num].get_wavelength()-550]
                 else:
                     messagebox.showwarning(
                         title='Not calibrated', message='This ND filter is not calibrated at chosen wavelength.')
+                    set_value(1, 'apply filter', num)
             else:
                 messagebox.showwarning(
                     title='Not calibrated', message='This ND filter is not yet calibrated.')
-            set_value(self.mult_value, f'{self.mult_value}', num)
+                set_value(1, 'apply filter', num)
+            set_value(self.mult_value, f'{str}', num)
 
         def nd1filters(num):
             self.mult_value = 0
@@ -447,18 +449,18 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                                     height=2,
                                     command=lambda: set_ex_value(10, 'ND1', num))
 
-            btn_ND10A = tk.Button(nd1_page,
+            btn_NE510 = tk.Button(nd1_page,
                                   bg=space_blue,
                                   fg=white_ish,
                                   font=ampfont,
                                   justify='center',
-                                  text='ND10A',
+                                  text='NE510B-B',
                                   width=10,
                                   height=2,
-                                  command=lambda: set_nd_val('nd10a', num))
+                                  command=lambda: set_nd_val('ne510b-b', num))
 
             btn_ND1_val.place(relx=0.5, rely=0.3, anchor='center')
-            btn_ND10A.place(relx=0.5, rely=0.75, anchor='center')
+            btn_NE510.place(relx=0.5, rely=0.75, anchor='center')
 
         def nd2filters(num):
 
@@ -476,7 +478,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             )
 
             nd2_page.title('ND2 filters')
-            nd2_page.geometry(f'120x170+350+112')
+            nd2_page.geometry(f'120x120+350+112')
 
             btn_ND2_val = tk.Button(nd2_page,
                                     bg=space_blue,
@@ -488,29 +490,29 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                                     height=2,
                                     command=lambda: set_ex_value(100, 'ND2', num))
 
-            btn_NE20B = tk.Button(nd2_page,
+            btn_NE520B = tk.Button(nd2_page,
                                   bg=space_blue,
                                   fg=white_ish,
                                   font=ampfont,
                                   justify='center',
-                                  text='NE20B',
+                                  text='NE520B-B',
                                   width=10,
                                   height=2,
-                                  command=lambda: set_nd_val('ne20b', num))
+                                  command=lambda: set_nd_val('ne520b-b', num))
 
-            btn_NDUV520A = tk.Button(nd2_page,
-                                     bg=space_blue,
-                                     fg=white_ish,
-                                     font=ampfont,
-                                     justify='center',
-                                     text='NDUV520A',
-                                     width=10,
-                                     height=2,
-                                     command=lambda: set_nd_val('nduv520a', num))
+            # btn_NDUV520A = tk.Button(nd2_page,
+            #                          bg=space_blue,
+            #                          fg=white_ish,
+            #                          font=ampfont,
+            #                          justify='center',
+            #                          text='NDUV520A',
+            #                          width=10,
+            #                          height=2,
+            #                          command=lambda: set_nd_val('nduv520a', num))
 
-            btn_ND2_val.place(relx=0.5, rely=0.18, anchor='center')
-            btn_NE20B.place(relx=0.5, rely=0.5, anchor='center')
-            btn_NDUV520A.place(relx=0.5, rely=0.82, anchor='center')
+            btn_ND2_val.place(relx=0.5, rely=0.3, anchor='center')
+            btn_NE520B.place(relx=0.5, rely=0.75, anchor='center')
+            # btn_NDUV520A.place(relx=0.5, rely=0.82, anchor='center')
 
         def nd3filters(num):
 
@@ -540,59 +542,59 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                                     height=2,
                                     command=lambda: set_ex_value(1000, 'ND3', num))
 
-            btn_NDUV530A = tk.Button(nd3_page,
+            btn_NE530 = tk.Button(nd3_page,
                                      bg=space_blue,
                                      fg=white_ish,
                                      font=ampfont,
                                      justify='center',
-                                     text='NDUV530A',
+                                     text='NE530B-B',
                                      width=10,
                                      height=2,
-                                     command=lambda: set_nd_val('nduv530a', num))
+                                     command=lambda: set_nd_val('ne530b-b', num))
 
             btn_ND3_val.place(relx=0.5, rely=0.3, anchor='center')
-            btn_NDUV530A.place(relx=0.5, rely=0.75, anchor='center')
+            btn_NE530.place(relx=0.5, rely=0.75, anchor='center')
 
-        def nd4filters(num):
+        def nd5filters(num):
 
             def set_nd_val(str, num):
-                nd4_page.destroy()
+                nd5_page.destroy()
                 confirm_ndvalue(str, num)
 
             def set_ex_value(value, text, num):
-                nd4_page.destroy()
+                nd5_page.destroy()
                 set_value(value, text, num)
 
-            nd4_page = tk.Toplevel(
+            nd5_page = tk.Toplevel(
                 bg=white_ish,
                 relief='flat'
             )
 
-            nd4_page.title('ND4 filters')
-            nd4_page.geometry(f'120x120+350+112')
+            nd5_page.title('ND4 filters')
+            nd5_page.geometry(f'120x120+350+112')
 
-            btn_ND4_val = tk.Button(nd4_page,
+            btn_ND4_val = tk.Button(nd5_page,
                                     bg=space_blue,
                                     fg=white_ish,
                                     font=ampfont,
                                     justify='center',
-                                    text='ND4',
+                                    text='ND5',
                                     width=10,
                                     height=2,
-                                    command=lambda: set_ex_value(10000, 'ND4', num))
+                                    command=lambda: set_ex_value(100000, 'ND5', num))
 
-            btn_NE40B = tk.Button(nd4_page,
+            btn_NE550 = tk.Button(nd5_page,
                                   bg=space_blue,
                                   fg=white_ish,
                                   font=ampfont,
                                   justify='center',
-                                  text='NE40B',
+                                  text='NE550B-B',
                                   width=10,
                                   height=2,
-                                  command=lambda: set_nd_val('ne40b', num))
+                                  command=lambda: set_nd_val('ne550b-b', num))
 
             btn_ND4_val.place(relx=0.5, rely=0.3, anchor='center')
-            btn_NE40B.place(relx=0.5, rely=0.75, anchor='center')
+            btn_NE550.place(relx=0.5, rely=0.75, anchor='center')
 
         def custom_nd(num):
 
@@ -1106,7 +1108,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                             height=2,
                             command=lambda: nd3filters(num))
 
-        btn_ND4 = tk.Button(mult_page,
+        btn_ND5 = tk.Button(mult_page,
                             bg=space_blue,
                             fg=white_ish,
                             font=ampfont,
@@ -1114,7 +1116,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                             text='ND4',
                             width=10,
                             height=2,
-                            command=lambda: nd4filters(num))
+                            command=lambda: nd5filters(num))
 
         btn_reset = tk.Button(mult_page,
                               bg=teal,
@@ -1124,7 +1126,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                               text='reset',
                               width=23,
                               height=2,
-                              command=lambda: set_value(1, 'mulitply', num))
+                              command=lambda: set_value(1, 'apply filter', num))
 
         btn_custom = tk.Button(mult_page,
                                bg=dark_blue,
@@ -1151,7 +1153,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         btn_ND1.place(relx=0.25, rely=0.5, anchor='center')
         btn_ND2.place(relx=0.75, rely=0.1, anchor='center')
         btn_ND3.place(relx=0.75, rely=0.3, anchor='center')
-        btn_ND4.place(relx=0.75, rely=0.5, anchor='center')
+        btn_ND5.place(relx=0.75, rely=0.5, anchor='center')
         btn_custom.place(relx=0.25, rely=0.7, anchor='center')
         btn_customnd.place(relx=0.75, rely=0.7, anchor='center')
         btn_reset.place(relx=0.5, rely=0.9, anchor='center')
