@@ -1113,7 +1113,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                             fg=white_ish,
                             font=ampfont,
                             justify='center',
-                            text='ND4',
+                            text='ND5',
                             width=10,
                             height=2,
                             command=lambda: nd5filters(num))
