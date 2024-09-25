@@ -570,7 +570,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
                 relief='flat'
             )
 
-            nd5_page.title('ND4 filters')
+            nd5_page.title('ND5 filters')
             nd5_page.geometry(f'120x120+350+112')
 
             btn_ND4_val = tk.Button(nd5_page,
