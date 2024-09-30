@@ -2439,7 +2439,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.ampl.place(relx=0.5, rely=0.8, anchor='center')
             self.amp_num.place(relx=0.5, rely=0.90, anchor='center')
             self.diode_banner.place(relx=frame_dist,
-                                    y=10,
+                                    rely=0.12,
                                     relwidth=frame_width,
                                     relheight=0.85)  # relative positioning of frames to master window
 
@@ -2555,7 +2555,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.ampl1.place(relx=0.5, rely=0.8, anchor='center')
             self.amp_num1.place(relx=0.5, rely=0.90, anchor='center')
             self.diode_banner_1.place(relx=2*frame_dist + frame_width,
-                                      y=10,
+                                      rely=0.12,
                                       relwidth=frame_width,
                                       relheight=0.85)
 
@@ -2671,7 +2671,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.ampl2.place(relx=0.5, rely=0.8, anchor='center')
             self.amp_num2.place(relx=0.5, rely=0.90, anchor='center')
             self.diode_banner_2.place(relx=3*frame_dist + 2*frame_width,
-                                      y=10,
+                                      rely=0.12,
                                       relwidth=frame_width,
                                       relheight=0.85)
 
@@ -2788,7 +2788,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.ampl3.place(relx=0.5, rely=0.8, anchor='center')
             self.amp_num3.place(relx=0.5, rely=0.90, anchor='center')
             self.diode_banner_3.place(relx=4*frame_dist + 3*frame_width,
-                                      y=10,
+                                      rely=0.12,
                                       relwidth=frame_width,
                                       relheight=0.85)
 
