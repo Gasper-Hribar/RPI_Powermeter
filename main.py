@@ -2244,32 +2244,73 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         self.source = False
         self.diodecount = len(self.list_of_act_diodes)
 
+        if self.diodecount > 0:
+            frame_width = 0.96 / self.diodecount
+            frame_dist = 0.04 / (self.diodecount + 1)
+
+
         if self.source:
             self.voltagetext = 'Voltage [V]'
         else:
             self.voltagetext = 'Power [W]'
 
-        self.menu = tk.Menu(self,
-                            bg=light_gray,
-                            fg=space_blue,
-                            activebackground=teal,
-                            font=menufont)
+        
+        self.menu = tk.Frame(self,
+                             width=f'{self.width*ptomm}m',
+                             height=f'{self.height*ptomm}m',
+                             relief='flat',
+                             bg=light_gray)
+        self.menu.place(relx=0,
+                        rely=0,
+                        relwidth=1,
+                        relheight=0.1)
 
-        self.config(menu=self.menu)
+        self.settings_button = tk.Button(self.menu,
+                                         height=1,
+                                         fg=space_blue,
+                                         bg=light_gray,
+                                         font=menufont,
+                                         text="Settings",
+                                         relief='flat',
+                                         command=self.settings_page)
 
-        if self.diodecount > 0:
-            frame_width = 0.96 / self.diodecount
-            frame_dist = 0.04 / (self.diodecount + 1)
+        self.exit_button = tk.Button(self.menu,
+                                     height=1,
+                                     fg=space_blue,
+                                     bg=light_gray,
+                                     font=menufont,
+                                     text="Exit",
+                                     relief='flat',
+                                     command=self.close_app)
 
-        settsMenu = tk.Menu(self.menu)
-        exitMenu = tk.Menu(self.menu)
-        settsMenu.add_command(label='Settings', command=self.settings_page,
-                              font=menufont, activebackground=space_blue, activeforeground=white_ish)
-        # settsMenu.add_command(label='Refresh', command=self.refresh, font=menufont)
-        self.menu.add_cascade(label='Settings', menu=settsMenu)
-        exitMenu.add_command(label='Exit', command=self.close_app, background=red,
-                             font=menufont, activebackground=red, activeforeground=white_ish)
-        self.menu.add_cascade(label='Exit', menu=exitMenu)
+        self.settings_button.place(relx=0.01,
+                                   rely=0,
+                                   relwidth=0.15,
+                                   relheight=1)
+
+        self.exit_button.place(relx=0.83,
+                               rely=0,
+                               relwidth=0.15,
+                               relheight=1)
+
+        # self.menu = tk.Menu(self,
+        #                     bg=light_gray,
+        #                     fg=space_blue,
+        #                     activebackground=teal,
+        #                     font=menufont)
+
+        # self.config(menu=self.menu)
+
+        
+        # settsMenu = tk.Menu(self.menu)
+        # exitMenu = tk.Menu(self.menu)
+        # settsMenu.add_command(label='Settings', command=self.settings_page,
+        #                       font=menufont, activebackground=space_blue, activeforeground=white_ish)
+        # # settsMenu.add_command(label='Refresh', command=self.refresh, font=menufont)
+        # self.menu.add_cascade(label='Settings', menu=settsMenu)
+        # exitMenu.add_command(label='Exit', command=self.close_app, background=red,
+        #                      font=menufont, activebackground=red, activeforeground=white_ish)
+        # self.menu.add_cascade(label='Exit', menu=exitMenu)
 
         if self.diodecount == 0:
             self.refresh()
@@ -2400,7 +2441,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.diode_banner.place(relx=frame_dist,
                                     y=10,
                                     relwidth=frame_width,
-                                    relheight=0.95)  # relative positioning of frames to master window
+                                    relheight=0.85)  # relative positioning of frames to master window
 
         if self.diodecount >= 2:
             self.diode_banner_1 = tk.Frame(self,
@@ -2516,7 +2557,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.diode_banner_1.place(relx=2*frame_dist + frame_width,
                                       y=10,
                                       relwidth=frame_width,
-                                      relheight=0.95)
+                                      relheight=0.85)
 
         if self.diodecount >= 3:
             self.diode_banner_2 = tk.Frame(self,
@@ -2632,7 +2673,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.diode_banner_2.place(relx=3*frame_dist + 2*frame_width,
                                       y=10,
                                       relwidth=frame_width,
-                                      relheight=0.95)
+                                      relheight=0.85)
 
         if self.diodecount == 4:
 
@@ -2749,7 +2790,7 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
             self.diode_banner_3.place(relx=4*frame_dist + 3*frame_width,
                                       y=10,
                                       relwidth=frame_width,
-                                      relheight=0.95)
+                                      relheight=0.85)
 
 ######
 ######
@@ -2771,7 +2812,11 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         # GUI
         self.title('PowerMeter')
         # app window starts in borderless fullscreen mode
-        self.attributes("-fullscreen", True)
+        self.geometry("800x480+0+0")
+        try:
+            self.attributes("-fullscreen", True)
+        except:
+            pass
         self.bind("<F11>", lambda event: self.attributes(
             "-fullscreen", not self.attributes("-fullscreen")))
         # keyboard key bindings for exiting fullscreen mode
