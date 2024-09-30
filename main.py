@@ -1756,9 +1756,11 @@ class powermeter_app(tk.Tk):  # powermeter_app inherits from tk.Tk class
         def add_to_value(val):
             if self.decimal_count_offset == 0:
                 self.offset_value = (10 * abs(self.offset_value)) + val
+                dec_count()
             else:
                 self.offset_value = abs(
                     self.offset_value) + (val / 10**self.decimal_count_offset)
+                dec_count()
 
             if self.offset_sign == False:
                 self.offset_value = 0 - self.offset_value
